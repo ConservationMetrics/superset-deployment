@@ -1,0 +1,5 @@
+# Ignore all .env files
+.env*
+
+# except don't ignore the sample, which people should copy.
+!.env.sample
