@@ -69,7 +69,7 @@ EXPLORE_FORM_DATA_CACHE_CONFIG = CACHE_CONFIG
 
 class CeleryConfig(object):
     BROKER_URL = os.path.join(REDIS_URL, REDIS_CELERY_DB) + "?ssl_cert_reqs=optional"
-    CELERY_IMPORTS = ("superset.sql_lab", "superset.tasks")
+    CELERY_IMPORTS = ("superset.sql_lab",)
     CELERY_RESULT_BACKEND = (
         os.path.join(REDIS_URL, REDIS_RESULTS_DB) + "?ssl_cert_reqs=optional"
     )
