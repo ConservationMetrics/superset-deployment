@@ -169,14 +169,6 @@ services:
       - "8080:8088"
     depends_on: *superset-depends-on
 
-  superset-init:
-    env_file: docker/.env-non-dev
-    image: *superset-image
-    container_name: superset_init
-    command: ["/app/docker/docker-init.sh"]
-    user: "root"
-    depends_on: *superset-depends-on
-
   superset-worker:
     env_file: docker/.env-non-dev
     image: *superset-image
