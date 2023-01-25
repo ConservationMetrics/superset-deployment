@@ -60,8 +60,8 @@ Now you can build the image, and might as well push it to the container registry
 SS_VERSION=1.5.3
 BUILD=$(date +"%Y%m%d-%H%M")
 OUR_TAG="${SS_VERSION}_${BUILD}"
-docker build -t guardiancr.azurecr.io/superset-docker:OUR_TAG .
-docker push guardiancr.azurecr.io/superset-docker:OUR_TAG
+docker build -t guardiancr.azurecr.io/superset-docker:${OUR_TAG} .
+docker push guardiancr.azurecr.io/superset-docker:${OUR_TAG}
 ```
 
 ### Running locally
