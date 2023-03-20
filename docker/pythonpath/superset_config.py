@@ -20,6 +20,7 @@
 # development environments. Also note that superset_config_docker.py is imported
 # as a final step as a means to override "defaults" configured here
 #
+import json
 import logging
 import os
 from typing import Optional
@@ -100,6 +101,8 @@ WEBDRIVER_BASEURL = "http://superset:8088/"
 WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
 
 SQLLAB_CTAS_NO_LIMIT = True
+
+LANGUAGES = json.loads(get_env_variable("LANGUAGES", {}))
 
 #
 # Optionally import superset_config_docker.py (which will have been included on

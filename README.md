@@ -39,7 +39,7 @@ At the moment, we share one Redis cache across all clients, with its keyspace pa
 
 ## A generic, deployable Docker image
 
-This repo roughly follows [how superset's own code base gets you started with Docker](https://github.com/apache/superset/tree/master/docker#production), but removes a lot of the distraction around local development, which is their primary focus.
+This repo roughly follows [how superset's own code base gets you started with Docker](https://github.com/apache/superset/tree/master/docker#production), but removes a lot of the distraction around local development, which was the primary focus of superset's upstream documentation.
 
 The docker image we'll build in this repo lets you inject configuration settings
 from environment variables. It does this in the script `docker/pythonpath/superset_config.py`,
