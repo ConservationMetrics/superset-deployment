@@ -57,7 +57,7 @@ First you must commit to a specific release version of Superset, and
 Now you can build the image, and might as well push it to the container registry too:
 
 ```bash
-SS_VERSION=2.0.1
+SS_VERSION=2.1.0rc3
 BUILD=$(date +"%Y%m%d-%H%M")
 OUR_TAG="${SS_VERSION}_${BUILD}"
 docker build -t guardiancr.azurecr.io/superset-docker:${OUR_TAG} .
@@ -107,7 +107,7 @@ Under **Deployment Center**, configure the app as follows:
 
 ### Multi-container "Config"
 
-The multi-container (docker-compose) config is a bit of a black art. Know that it is not bona-fide docker-compose, and many features you'd expect are buggy or not implemented at all. It is valid YAML, so you can use references and such.
+The multi-container (docker-compose) config is a bit of a black art. It is not bona-fide docker-compose, and many features you'd expect are buggy or not implemented at all. It is valid YAML, so you can use references and such.
 
 At the same time, the `superset-init` step seems to get messed up if you're also running the web service or celery worker at the same time as it's doing database setup. The solution here is to incrementally change which containers are running until the `init` is complete. We will do this in three steps:
 
@@ -117,11 +117,10 @@ To avoid unwanted interactions between the app and database initialization, we s
 
 However App Service will kill after a couple minutes if it hasn't found a web server listening on port 8080 so we also run a tiny unimportant web server to keep things looking "healthy" while the database initialization runs. I use `wickerlabs/maintenance`; whatever you use make sure to vet it first that it won't leak your environment variables.
 
-The web service exposing port 8080 needs to be listed _first_ in a multi-container app! This is not documented... we should report a bug to Azure...
-If you put `superset-init` first, App Service will kill it.
+The web service exposing port 8080 needs to be the _first_ service listed in a multi-container app! (This is not documented; we should report a bug to Azure...).  If instead you put `superset-init` first, App Service will kill it.
 
 ```yaml
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.0.1_20220123-1442
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.1.0rc3_20230322-1543
 x-superset-depends-on: &superset-depends-on []
 
 version: "3.7"
@@ -153,7 +152,7 @@ even longer if your PostgreSQL instance is Burstable. Tail the logs (as shown ab
 Remove the `superset-init` service. Replace the maintenance page with the actual Superset web service. Add Celery worker and beat.
 
 ```yaml
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.0.1_20220123-1442
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.1.0rc3_20230322-1543
 x-superset-depends-on: &superset-depends-on []
 
 version: "3.7"

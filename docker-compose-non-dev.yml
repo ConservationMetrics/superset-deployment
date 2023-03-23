@@ -1,4 +1,4 @@
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.0.1_20230320-1525
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.1.0rc3_20230322-1543
 x-superset-depends-on: &superset-depends-on []
 
 version: "3.7"
@@ -42,7 +42,7 @@ services:
 
   # db:
   #   env_file: docker/.env-non-dev
-  #   image: postgres:12
+  #   image: postgres:14
   #   container_name: superset_db
   #   restart: unless-stopped
   #   volumes:

@@ -69,15 +69,14 @@ EXPLORE_FORM_DATA_CACHE_CONFIG = CACHE_CONFIG
 
 
 class CeleryConfig(object):
-    BROKER_URL = os.path.join(REDIS_URL, REDIS_CELERY_DB) + "?ssl_cert_reqs=optional"
-    CELERY_IMPORTS = ("superset.sql_lab",)
-    CELERY_RESULT_BACKEND = (
+    broker_url = os.path.join(REDIS_URL, REDIS_CELERY_DB) + "?ssl_cert_reqs=optional"
+    imports = ("superset.sql_lab",)
+    result_backend = (
         os.path.join(REDIS_URL, REDIS_RESULTS_DB) + "?ssl_cert_reqs=optional"
     )
-    CELERYD_LOG_LEVEL = "DEBUG"
-    CELERYD_PREFETCH_MULTIPLIER = 1
-    CELERY_ACKS_LATE = False
-    CELERYBEAT_SCHEDULE = {
+    worker_prefetch_multiplier = 1
+    task_acks_late = False
+    beat_schedule = {
         "reports.scheduler": {
             "task": "reports.scheduler",
             "schedule": crontab(minute="*", hour="*"),
