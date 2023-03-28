@@ -51,7 +51,7 @@ SECRET_KEY = get_env_variable("SECRET_KEY")
 SQLALCHEMY_DATABASE_URI = get_env_variable("DATABASE_URI")
 
 REDIS_URL = get_env_variable("REDIS_URL")
-CACHE_KEY_PREFIX = get_env_variable("REDIS_PORT", "superset_")
+CACHE_KEY_PREFIX = get_env_variable("CACHE_KEY_PREFIX", "superset_")
 REDIS_CELERY_DB = get_env_variable("REDIS_CELERY_DB", "0")
 REDIS_RESULTS_DB = get_env_variable("REDIS_RESULTS_DB", "1")
 
