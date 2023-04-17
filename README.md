@@ -120,7 +120,7 @@ However App Service will kill after a couple minutes if it hasn't found a web se
 The web service exposing port 8080 needs to be the _first_ service listed in a multi-container app! (This is not documented; we should report a bug to Azure...).  If instead you put `superset-init` first, App Service will kill it.
 
 ```yaml
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.1.0rc3_20230322-1543
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.1.0_20230417-1434
 x-superset-depends-on: &superset-depends-on []
 
 version: "3.7"
@@ -152,7 +152,7 @@ even longer if your PostgreSQL instance is Burstable. Tail the logs (as shown ab
 Remove the `superset-init` service. Replace the maintenance page with the actual Superset web service. Add Celery worker and beat.
 
 ```yaml
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.1.0rc3_20230322-1543
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.1.0_20230417-1434
 x-superset-depends-on: &superset-depends-on []
 
 version: "3.7"

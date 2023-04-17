@@ -5,7 +5,7 @@
 #
 # If you need to run locally, see the apache/superset Git repo instead.
 #
-FROM apache/superset:2.1.0rc3
+FROM apache/superset:2.1.0
 
 COPY --chown=superset ./docker/docker-bootstrap.sh /app/docker/
 COPY --chown=superset ./docker/docker-init.sh /app/docker/
