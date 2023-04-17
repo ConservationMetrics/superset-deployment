@@ -51,7 +51,7 @@ superset db upgrade
 echo_step "1" "Complete" "Applying DB migrations"
 
 # Create an admin user
-echo_step "2" "Starting" "Setting up admin user ( admin / $ADMIN_PASSWORD )"
+echo_step "2" "Starting" "Setting up admin user"
 superset fab create-admin \
               --username admin \
               --firstname Warehouse \
