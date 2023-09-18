@@ -23,6 +23,7 @@
 import json
 import logging
 import os
+from datetime import timedelta
 from typing import Optional
 
 from cachelib.file import FileSystemCache
@@ -91,9 +92,7 @@ class CeleryConfig(object):
 CELERY_CONFIG = CeleryConfig
 
 # https://github.com/apache/superset/blob/master/RESOURCES/FEATURE_FLAGS.md
-FEATURE_FLAGS = {
-    "ALERT_REPORTS": True,
-}
+FEATURE_FLAGS = { "ALERT_REPORTS": True}
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
 WEBDRIVER_BASEURL = "http://superset:8088/"
 # The base URL for the email report hyperlinks.
@@ -101,10 +100,11 @@ WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
 
 SQLLAB_CTAS_NO_LIMIT = True
 
+# Custom config for biocultural monitoring deployments by CMI
+
 LANGUAGES = json.loads(get_env_variable("LANGUAGES", {}))
 MAPBOX_API_KEY = get_env_variable("MAPBOX_API_KEY")
 
-# Permit some HTML attributes to bypass sanitization
 HTML_SANITIZATION_SCHEMA_EXTENSIONS = {
   "attributes": {
     "*": ["style","className","src","width","height","frameborder","marginwidth","marginheight","scrolling"],
