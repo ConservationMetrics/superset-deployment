@@ -104,6 +104,14 @@ SQLLAB_CTAS_NO_LIMIT = True
 LANGUAGES = json.loads(get_env_variable("LANGUAGES", {}))
 MAPBOX_API_KEY = get_env_variable("MAPBOX_API_KEY")
 
+# Permit some HTML attributes to bypass sanitization
+HTML_SANITIZATION_SCHEMA_EXTENSIONS = {
+  "attributes": {
+    "*": ["style","className","src","width","height","frameborder","marginwidth","marginheight","scrolling"],
+  },
+  "tagNames": ["style", "iframe", "h1", "h2", "h3", "h4", "h5", "h6"],
+}
+
 #
 # Optionally import superset_config_docker.py (which will have been included on
 # the PYTHONPATH) in order to allow for local settings to be overridden
