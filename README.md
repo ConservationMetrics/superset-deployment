@@ -72,7 +72,7 @@ more comfortable environment.
 1. If hosting your own database cache locally, add those services to `docker-compose-non-dev.yml`
    - you may add local volumes here, but we won't do that in deployment.
 2. Put environment variables in a new file called `docker/.env-non-dev`
-   - you may first `cp docker/.env-sample docker/.env.non-dev`
+   - you may first `cp docker/.env-sample docker/.env-non-dev`
    - make sure `DATABASE_URI` and `REDIS_URL` point to non-production services (assuming you want that)
 3. `docker-compose -f docker-compose-non-dev.yml up`. Note that `superset-init` takes a few minutes to complete (it will terminate once done), and the rest of the app is unusable/buggy until then.
 4. Open a browser to [`localhost:8080`](http://localhost:8080)
