@@ -8,7 +8,8 @@
 FROM apache/superset:2.1.1
 
 # TODO: get this working in the docker images that we use
-RUN pip install authlib==1.2.0
+COPY ./docker/requirements-local.txt /app/
+RUN pip install --no-cache-dir -r requirements-local.txt
 
 COPY --chown=superset ./docker/docker-bootstrap.sh /app/docker/
 COPY --chown=superset ./docker/docker-init.sh /app/docker/
