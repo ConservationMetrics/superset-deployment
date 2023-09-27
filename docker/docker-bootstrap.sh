@@ -17,6 +17,7 @@
 #
 
 set -eo pipefail
+set -x
 
 REQUIREMENTS_LOCAL="/app/docker/requirements-local.txt"
 # If Cypress run – overwrite the password for admin and export env variables
