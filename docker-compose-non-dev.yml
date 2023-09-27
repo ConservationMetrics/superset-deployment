@@ -11,6 +11,11 @@ services:
     user: "root"
     ports:
       - "8080:8088"
+    environment:
+      - AUTH0_DOMAIN=baz
+      - BASE_URL=example.com
+      - AUTH0_CLIENTID=raop
+      - AUTH0_CLIENT_SECRET=ssss
     depends_on: *superset-depends-on
 
   # superset-init:
