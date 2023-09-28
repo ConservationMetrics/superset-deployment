@@ -26,6 +26,10 @@ import os
 from datetime import timedelta
 from typing import Optional
 
+from flask_appbuilder.security.manager import AUTH_OAUTH
+
+from superset.security import SupersetSecurityManager
+
 from cachelib.file import FileSystemCache
 from celery.schedules import crontab
 
@@ -101,6 +105,73 @@ WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
 SQLLAB_CTAS_NO_LIMIT = True
 
 # Custom config for biocultural monitoring deployments by CMI
+
+AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN")
+BASE_URL = get_env_variable("BASE_URL")
+
+# https://superset.apache.org/docs/installation/configuring-superset/#custom-oauth2-configuration
+# We need to override the default security manager to use Auth0
+class CustomSsoSecurityManager(SupersetSecurityManager):
+    def oauth_user_info(self, provider, response=None):
+        logging.debug("Oauth2 provider: {0}.".format(provider))
+        if provider == 'auth0':
+            res = self.appbuilder.sm.oauth_remotes[provider].get(f'https://{AUTH0_DOMAIN}/userinfo')
+            if res.raw.status != 200:
+                logger.error('Failed to obtain user info.')
+                return
+            me = res.json()
+            # Uncomment the following line to inspect the returned user data
+            # logger.debug(" user_data: %s", me)
+
+            # Auth0 returns a full name, but Superset expects first/last name
+            # We'll split the full name into two parts, but note that this is
+            # not robust since some people have multiple first or last names
+            # and naming conventions across the world vary (e.g. some cultures
+            # put the last name first).
+            name_parts = me['name'].rsplit(maxsplit=1)
+            first_name = name_parts[0]
+            last_name = name_parts[1] if len(name_parts) > 1 else ''
+
+            return {
+                'username' : me['email'],
+                'email' : me['email'],
+                'first_name': first_name, 
+                'last_name': last_name
+            }
+
+# If you want to use standard Superset authentication and authorization,
+# Comment out CUSTOM_SECURITY_MANAGER and AUTH_TYPE
+CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
+AUTH_TYPE = AUTH_OAUTH
+
+AUTH_USER_REGISTRATION = False
+
+OAUTH_PROVIDERS = [{
+    'name': 'auth0',
+    'token_key': 'access_token',
+    'icon': 'fa-google',
+    'remote_app': {
+        'client_id': get_env_variable("AUTH0_CLIENTID"),
+        'client_secret': get_env_variable("AUTH0_CLIENT_SECRET"),
+        'client_kwargs': {
+            'scope': 'openid profile email',
+        },
+        'access_token_method':'POST',
+        'access_token_params':{
+            'client_id':get_env_variable("AUTH0_CLIENTID")
+        },
+        'jwks_uri': f'https://{AUTH0_DOMAIN}/.well-known/jwks.json',
+        'access_token_url': f'https://{AUTH0_DOMAIN}/oauth/token',
+        'access_token_headers':{
+            'Authorization': 'Basic Base64EncodedClientIdAndSecret'
+        },
+        'authorize_url': f'https://{AUTH0_DOMAIN}/authorize',
+        'authorize_params': {
+            'audience': f'https://{AUTH0_DOMAIN}/api/v2/',
+        },
+        'redirect_uri': f'http://{BASE_URL}/oauth-authorized/auth0',  # Redirect URL of Superset application for post authentication
+    }
+}]
 
 LANGUAGES = json.loads(get_env_variable("LANGUAGES", {}))
 MAPBOX_API_KEY = get_env_variable("MAPBOX_API_KEY")
