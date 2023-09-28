@@ -120,7 +120,7 @@ However App Service will kill after a couple minutes if it hasn't found a web se
 The web service exposing port 8080 needs to be the _first_ service listed in a multi-container app! (This is not documented; we should report a bug to Azure...).  If instead you put `superset-init` first, App Service will kill it.
 
 ```yaml
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.1.1_20230918-1726
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.1.1_20230928-1744
 x-superset-depends-on: &superset-depends-on []
 
 version: "3.7"
@@ -152,7 +152,7 @@ even longer if your PostgreSQL instance is Burstable. Tail the logs (as shown ab
 Remove the `superset-init` service. Replace the maintenance page with the actual Superset web service. Add Celery worker and beat.
 
 ```yaml
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.1.1_20230918-1726
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:2.1.1_20230928-1744
 x-superset-depends-on: &superset-depends-on []
 
 version: "3.7"
@@ -193,7 +193,7 @@ In all these services, the `env_file` key is ignored (copy-pasta from `docker-co
 
 ## Authentication
 
-We are using auth0 for authentication. For auth0 to work, you will need to provide the relevant environmental variables shown in `.env-non-dev`. By default, account registration is disabled; Superset admins will need to create the accounts. Users may authenticate using auth0 based on their username, which should match their auth0 email address. 
+We are using auth0 for authentication. For auth0 to work, you will need to provide the relevant environmental variables shown in `.env-non-dev`. By default, account registration is disabled; Superset admins will need to create the accounts. Users may authenticate using auth0 ba2.1.1_20230928-1741sed on their username, which should match their auth0 email address. 
 
 Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/latest/security.html#authentication-methods) for authentication, which can only handle one type of authentication method and this means the standard authentication protocols are not accessible. Hence, for initial Superset db setup, we are using environmental variables to create an admin user whose username should match your auth0 email account. 
 

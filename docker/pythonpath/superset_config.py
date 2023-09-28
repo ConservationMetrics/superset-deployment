@@ -117,19 +117,20 @@ class CustomSsoSecurityManager(SupersetSecurityManager):
         if provider == 'auth0':
             res = self.appbuilder.sm.oauth_remotes[provider].get(f'https://{AUTH0_DOMAIN}/userinfo')
             if res.raw.status != 200:
-                logger.error('Failed to obtain user info: %s', res.json())
+                logger.error('Failed to obtain user info.)
                 return
             me = res.json()
-            logger.debug(" user_data: %s", me)
+            # Uncomment the following line to inspect the returned user data
+            # logger.debug(" user_data: %s", me)
 
             # Auth0 returns a full name, but Superset expects first/last name
-            name_parts = me['name'].split()
-            if len(name_parts) > 1:
-                first_name = ' '.join(name_parts[:-1])
-                last_name = name_parts[-1]
-            else:
-                first_name = me['name']
-                last_name = ''
+            # We'll split the full name into two parts, but note that this is
+            # not robust since some people have multiple first or last names
+            # and naming conventions across the world vary (e.g. some cultures
+            # put the last name first).
+            name_parts = me['name'].rsplit(maxsplit=1)
+            first_name = name_parts[0]
+            last_name = name_parts[1] if len(name_parts) > 1 else ''
 
             return {
                 'username' : me['email'],
