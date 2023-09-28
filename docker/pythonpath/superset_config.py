@@ -109,32 +109,66 @@ SQLLAB_CTAS_NO_LIMIT = True
 AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN")
 BASE_URL = get_env_variable("BASE_URL")
 
+# https://superset.apache.org/docs/installation/configuring-superset/#custom-oauth2-configuration
+# We need to override the default security manager to use Auth0
+class CustomSsoSecurityManager(SupersetSecurityManager):
+    def oauth_user_info(self, provider, response=None):
+        logging.debug("Oauth2 provider: {0}.".format(provider))
+        if provider == 'auth0':
+            res = self.appbuilder.sm.oauth_remotes[provider].get(f'https://{AUTH0_DOMAIN}/userinfo')
+            if res.raw.status != 200:
+                logger.error('Failed to obtain user info: %s', res.json())
+                return
+            me = res.json()
+            logger.debug(" user_data: %s", me)
+
+            # Auth0 returns a full name, but Superset expects first/last name
+            name_parts = me['name'].split()
+            if len(name_parts) > 1:
+                first_name = ' '.join(name_parts[:-1])
+                last_name = name_parts[-1]
+            else:
+                first_name = me['name']
+                last_name = ''
+
+            return {
+                'username' : me['email'],
+                'email' : me['email'],
+                'first_name': first_name, 
+                'last_name': last_name
+            }
+
+# If you want to use standard Superset authentication and authorization,
+# Comment out CUSTOM_SECURITY_MANAGER and AUTH_TYPE
+CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
 AUTH_TYPE = AUTH_OAUTH
-AUTH_USER_REGISTRATION = True
-AUTH_USER_REGISTRATION_ROLE = "Gamma"
+
+AUTH_USER_REGISTRATION = False
 
 OAUTH_PROVIDERS = [{
     'name': 'auth0',
-    'token_key': 'access_token',  # Name of the token in the response of access_token_url
-    'icon': 'fa-google',  # Icon for the provider
+    'token_key': 'access_token',
+    'icon': 'fa-google',
     'remote_app': {
-        'client_id': get_env_variable("AUTH0_CLIENTID"),  # Client Id (Identify Superset application in provider)
-        'client_secret': get_env_variable("AUTH0_CLIENT_SECRET"),  # Secret for this Client Id (Identify Superset application in provider)
+        'client_id': get_env_variable("AUTH0_CLIENTID"),
+        'client_secret': get_env_variable("AUTH0_CLIENT_SECRET"),
         'client_kwargs': {
-            'scope': 'openid profile email',  # Change according to provider's scope
+            'scope': 'openid profile email',
         },
-        'authorize_url': f'https://{AUTH0_DOMAIN}/authorize',  # URL for authentication
+        'access_token_method':'POST',
+        'access_token_params':{
+            'client_id':get_env_variable("AUTH0_CLIENTID")
+        },
+        'jwks_uri': f'https://{AUTH0_DOMAIN}/.well-known/jwks.json',
+        'access_token_url': f'https://{AUTH0_DOMAIN}/oauth/token',
+        'access_token_headers':{
+            'Authorization': 'Basic Base64EncodedClientIdAndSecret'
+        },
+        'authorize_url': f'https://{AUTH0_DOMAIN}/authorize',
         'authorize_params': {
-            'audience': f'https://{AUTH0_DOMAIN}/api/v2/',  # audience of your Auth0 API
+            'audience': f'https://{AUTH0_DOMAIN}/api/v2/',
         },
-        'access_token_url': f'https://{AUTH0_DOMAIN}/oauth/token',  # URL to gather token
-        'redirect_uri': f'http://{BASE_URL}/oauth-authorized/auth0',  # Redirect URL in your Superset application for post authentication
-        'user_info_url': f'https://{AUTH0_DOMAIN}/userinfo',  # URL to get user information
-        'user_info_mapping': {
-            'username': 'nickname', 
-            'name': 'name', 
-            'email': 'email',
-        },
+        'redirect_uri': f'http://{BASE_URL}/oauth-authorized/auth0',  # Redirect URL of Superset application for post authentication
     }
 }]
 

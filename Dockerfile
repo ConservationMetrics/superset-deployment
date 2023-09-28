@@ -1,18 +1,18 @@
 # This builds the Docker image to be deployed in production.
 #
-# This image's only purpose is to inject environment variables into config.py
-# when running Superset.
+# This image's only purpose is to inject environment variables 
+# and python libraries into config.py when running Superset.
 #
 # If you need to run locally, see the apache/superset Git repo instead.
 #
 FROM apache/superset:2.1.1
 
-# TODO: get this working in the docker images that we use
 COPY --chown=superset ./docker/requirements-local.txt /app/docker/
 COPY --chown=superset ./docker/docker-bootstrap.sh /app/docker/
 COPY --chown=superset ./docker/docker-init.sh /app/docker/
 # COPY --chown=superset ./docker/docker-ci.sh /app/docker/
 
+# Specify your own python libraries in requirements-local.txt
 RUN pip install --no-cache-dir -r /app/docker/requirements-local.txt
 
 # This script is what sets config values from environment variables.

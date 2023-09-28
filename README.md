@@ -51,7 +51,7 @@ First you must commit to a specific release version of Superset, and
 
 - update that version in [`Dockerfile`](Dockerfile)
 - port any new changes to `superset_config.py` from that same tag upstream. This is manual and will require some diffing, something like:
-  - cd ~/dev/superset ; git checkout 2.0.1
+  - cd ~/dev/superset ; git checkout 2.1.1
   - diff ~/dev/superset/docker/pythonpath_dev/superset_config.py ~/dev/superset-deployment/docker/pythonpath/superset_config.py
 
 Now you can build the image, and might as well push it to the container registry too:
@@ -190,6 +190,12 @@ services:
 Notice that in the `superset` web service, we need port forwarding `ports:\n  - "80:8088"` because Superset is running on 8088 but Azure App Service requires it to be on port 8080 (or 80). Multi-container deployments seem to ignore WEBSITES_PORT, so you must do it this way.
 
 In all these services, the `env_file` key is ignored (copy-pasta from `docker-compose-non-dev.yml`), but all the environment variables from the App Service **Configuration** are injected to the containers instead.
+
+## Authentication
+
+We are using auth0 for authentication. For auth0 to work, you will need to provide the relevant environmental variables shown in `.env-non-dev`. By default, account registration is disabled; Superset admins will need to create the accounts. Users may authenticate using auth0 based on their username, which should match their auth0 email address. 
+
+Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/latest/security.html#authentication-methods) for authentication, which can only handle one type of authentication method and this means the standard authentication protocols are not accessible. Hence, for initial Superset db setup, we are using environmental variables to create an admin user whose username should match your auth0 email account. 
 
 ## Superset setup
 
