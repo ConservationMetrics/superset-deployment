@@ -117,7 +117,7 @@ class CustomSsoSecurityManager(SupersetSecurityManager):
         if provider == 'auth0':
             res = self.appbuilder.sm.oauth_remotes[provider].get(f'https://{AUTH0_DOMAIN}/userinfo')
             if res.raw.status != 200:
-                logger.error('Failed to obtain user info.)
+                logger.error('Failed to obtain user info.')
                 return
             me = res.json()
             # Uncomment the following line to inspect the returned user data
