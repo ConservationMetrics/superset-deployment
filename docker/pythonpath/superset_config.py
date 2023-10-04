@@ -107,7 +107,6 @@ SQLLAB_CTAS_NO_LIMIT = True
 # Custom config for biocultural monitoring deployments by CMI
 
 AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN")
-BASE_URL = get_env_variable("BASE_URL")
 
 # https://superset.apache.org/docs/installation/configuring-superset/#custom-oauth2-configuration
 # We need to override the default security manager to use Auth0
@@ -144,7 +143,8 @@ class CustomSsoSecurityManager(SupersetSecurityManager):
 CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
 AUTH_TYPE = AUTH_OAUTH
 
-AUTH_USER_REGISTRATION = False
+AUTH_USER_REGISTRATION = True
+AUTH_USER_REGISTRATION_ROLE = "Public"
 
 OAUTH_PROVIDERS = [{
     'name': 'auth0',
@@ -161,15 +161,13 @@ OAUTH_PROVIDERS = [{
             'client_id':get_env_variable("AUTH0_CLIENTID")
         },
         'jwks_uri': f'https://{AUTH0_DOMAIN}/.well-known/jwks.json',
-        'access_token_url': f'https://{AUTH0_DOMAIN}/oauth/token',
         'access_token_headers':{
             'Authorization': 'Basic Base64EncodedClientIdAndSecret'
         },
-        'authorize_url': f'https://{AUTH0_DOMAIN}/authorize',
-        'authorize_params': {
-            'audience': f'https://{AUTH0_DOMAIN}/api/v2/',
-        },
-        'redirect_uri': f'http://{BASE_URL}/oauth-authorized/auth0',  # Redirect URL of Superset application for post authentication
+        'api_base_url':f'https://{AUTH0_DOMAIN}/oauth/',
+        'access_token_url': f'https://{AUTH0_DOMAIN}/oauth/token',
+        'authorize_url': f'https://{AUTH0_DOMAIN}/authorize'
+
     }
 }]
 
