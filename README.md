@@ -193,7 +193,7 @@ In all these services, the `env_file` key is ignored (copy-pasta from `docker-co
 
 ## Authentication
 
-We are using auth0 for authentication. For auth0 to work, you will need to provide the relevant environmental variables shown in `.env-non-dev`, and configure your auth0 tentant according to your needs. By default, Superset account registration is enabled. Users will start with a limited "Public" role; from there, Superset admins will need to upgrade their role as needed. Users may authenticate using auth0 based on their username, which should match their auth0 email address. 
+We are using auth0 for authentication. For auth0 to work, you will need to provide the relevant environmental variables shown in `.env-non-dev`, and configure your auth0 tentant according to your needs. By default, Superset account registration is enabled. Users may authenticate using auth0 based on their username, which should match their auth0 email address. The starting Role of the user is determined by a `USER_ROLE` environmental variable. Please see [this guide on Superset roles](https://superset.apache.org/docs/security/) to set the appropriate starting Role for your deployment.
 
 Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/latest/security.html#authentication-methods) for authentication, which can only handle one type of authentication method and this means the standard authentication protocols are not accessible. Hence, for initial Superset db setup, we are using environmental variables to create an admin user whose username should match your auth0 email account. 
 
