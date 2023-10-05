@@ -144,7 +144,7 @@ CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
 AUTH_TYPE = AUTH_OAUTH
 
 AUTH_USER_REGISTRATION = True
-AUTH_USER_REGISTRATION_ROLE = get_env_variable("USER_ROLE")
+AUTH_USER_REGISTRATION_ROLE = get_env_variable("USER_ROLE", "Gamma")
 
 OAUTH_PROVIDERS = [{
     'name': 'auth0',
