@@ -112,14 +112,13 @@ SQLLAB_CTAS_NO_LIMIT = True
 
 AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN")
 
-# Override the default OAuthView to show a custom message when the user is not authorized
+# Extend the default AuthOAuthView to override the default message when the user is not authorized
 class CustomAuthOAuthView(AuthOAuthView):
     @expose("/oauth-authorized/<provider>")
     def oauth_authorized(self, provider: str) -> WerkzeugResponse:
         response = super().oauth_authorized(provider)
         
         messages = get_flashed_messages(with_categories=True)
-        # Override the default message when the user is not authorized
         if ('error', 'The request to sign in was denied.') in messages:
             flash("You are not authorized to access this application. Please contact a GuardianConnector administrator.", "warning")
         
