@@ -27,6 +27,10 @@ from datetime import timedelta
 from typing import Optional
 
 from flask_appbuilder.security.manager import AUTH_OAUTH
+from flask_appbuilder.security.views import AuthOAuthView
+from flask_appbuilder import expose
+from flask import flash, get_flashed_messages
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from superset.security import SupersetSecurityManager
 
@@ -108,9 +112,23 @@ SQLLAB_CTAS_NO_LIMIT = True
 
 AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN")
 
+# Extend the default AuthOAuthView to override the default message when the user is not authorized
+class CustomAuthOAuthView(AuthOAuthView):
+    @expose("/oauth-authorized/<provider>")
+    def oauth_authorized(self, provider: str) -> WerkzeugResponse:
+        response = super().oauth_authorized(provider)
+        
+        messages = get_flashed_messages(with_categories=True)
+        if ('error', 'The request to sign in was denied.') in messages:
+            flash("You are not authorized to access this application. Please contact a GuardianConnector administrator.", "warning")
+        
+        return response
+
 # https://superset.apache.org/docs/installation/configuring-superset/#custom-oauth2-configuration
 # We need to override the default security manager to use Auth0
 class CustomSsoSecurityManager(SupersetSecurityManager):
+    authoauthview = CustomAuthOAuthView
+
     def oauth_user_info(self, provider, response=None):
         logging.debug("Oauth2 provider: {0}.".format(provider))
         if provider == 'auth0':
