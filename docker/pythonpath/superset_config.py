@@ -96,8 +96,18 @@ class CeleryConfig(object):
         },
     }
 
-
 CELERY_CONFIG = CeleryConfig
+
+# CSP settings as provided by the Talisman extension
+# See https://superset.apache.org/docs/security/#content-security-policy-csp
+TALISMAN_CONFIG = {
+    "force_https": False,
+    "content_security_policy": {
+        "img-src": "*",
+        "media-src": "*",
+        "frame-ancestors": ["'self'", "https://*.guardianconnector.net"]    
+    }
+}
 
 # https://github.com/apache/superset/blob/master/RESOURCES/FEATURE_FLAGS.md
 FEATURE_FLAGS = { "ALERT_REPORTS": True}
@@ -109,7 +119,6 @@ WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
 SQLLAB_CTAS_NO_LIMIT = True
 
 # Custom config for biocultural monitoring deployments by CMI
-
 AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN")
 
 # Extend the default AuthOAuthView to override the default message when the user is not authorized
@@ -192,6 +201,7 @@ OAUTH_PROVIDERS = [{
 LANGUAGES = json.loads(get_env_variable("LANGUAGES", {}))
 MAPBOX_API_KEY = get_env_variable("MAPBOX_API_KEY")
 
+# Sanitization settings to allow iframes and style tags in markdown
 HTML_SANITIZATION_SCHEMA_EXTENSIONS = {
   "attributes": {
     "*": ["style","className","src","width","height","frameborder","marginwidth","marginheight","scrolling"],
