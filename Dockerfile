@@ -1,11 +1,11 @@
 # This builds the Docker image to be deployed in production.
 #
-# This image's only purpose is to inject environment variables 
+# This image's only purpose is to inject environment variables
 # and python libraries into config.py when running Superset.
 #
 # If you need to run locally, see the apache/superset Git repo instead.
 #
-FROM apache/superset:3.0.2
+FROM apache/superset:3.0.3
 
 COPY --chown=superset ./docker/docker-bootstrap.sh /app/docker/
 COPY --chown=superset ./docker/docker-init.sh /app/docker/
