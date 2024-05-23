@@ -129,8 +129,7 @@ class CustomAuthOAuthView(AuthOAuthView):
         
         messages = get_flashed_messages(with_categories=True)
         if ('error', 'The request to sign in was denied.') in messages:
-            flash("You are not authorized to access this application. Please contact a GuardianConnector administrator.", "warning")
-        
+            flash("You are not yet authorized to access this application. Please contact a GuardianConnector administrator for access.", "warning")     
         return response
 
 # https://superset.apache.org/docs/installation/configuring-superset/#custom-oauth2-configuration
