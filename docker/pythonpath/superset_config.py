@@ -123,6 +123,11 @@ AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN")
 
 # Extend the default AuthOAuthView to override the default message when the user is not authorized
 class CustomAuthOAuthView(AuthOAuthView):
+    @expose("/login")
+    def login(self) -> WerkzeugResponse:
+        flash("Welcome! Please sign up or log in with Auth0 below to access the application.", "info")
+        return super().login()
+
     @expose("/oauth-authorized/<provider>")
     def oauth_authorized(self, provider: str) -> WerkzeugResponse:
         response = super().oauth_authorized(provider)
@@ -193,7 +198,6 @@ OAUTH_PROVIDERS = [{
         'api_base_url':f'https://{AUTH0_DOMAIN}/oauth/',
         'access_token_url': f'https://{AUTH0_DOMAIN}/oauth/token',
         'authorize_url': f'https://{AUTH0_DOMAIN}/authorize'
-
     }
 }]
 
