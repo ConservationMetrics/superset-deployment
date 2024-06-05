@@ -57,7 +57,7 @@ First you must commit to a specific release version of Superset, and
 Now you can build the image, and might as well push it to the container registry too:
 
 ```bash
-SS_VERSION=3.0.2
+SS_VERSION=3.0.3
 BUILD=$(date +"%Y%m%d-%H%M")
 OUR_TAG="${SS_VERSION}_${BUILD}"
 docker build -t guardiancr.azurecr.io/superset-docker:${OUR_TAG} .
