@@ -30,7 +30,7 @@ from flask_appbuilder.security.manager import AUTH_OAUTH
 from flask_appbuilder.security.views import AuthOAuthView
 from flask_appbuilder import expose
 from flask import flash, get_flashed_messages
-from flask_babel import gettext as _, get_locale
+from flask_babel import get_locale
 from werkzeug.wrappers import Response as WerkzeugResponse
 
 from superset.security import SupersetSecurityManager
@@ -123,12 +123,12 @@ AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN")
 
 # Define translations
 translations = {
-    "Welcome! Please sign up or log in with Auth0 below to access the application.": {
-        "pt_BR": "Bem-vindo! Por favor, inscreva-se ou faça login com Auth0 abaixo para acessar o aplicativo.",
-        "en": "Welcome! Please sign up or log in with Auth0 below to access the application.",
-        "nl": "Welkom! Meld u aan of log in met Auth0 hieronder om toegang te krijgen tot de applicatie.",
-        "es": "¡Bienvenido! Regístrese o inicie sesión con Auth0 a continuación para acceder a la aplicación.",
-        "fr": "Bienvenue! Veuillez vous inscrire ou vous connecter avec Auth0 ci-dessous pour accéder à l'application."
+    "Welcome! Please sign up or log in by pressing 'Sign in with auth0' to access the application": {
+        "pt_BR": "Bem-vindo! Por favor, inscreva-se ou faça login pressionando 'Sign in with auth0' para acessar o aplicativo.",
+        "en": "Welcome! Please sign up or log in by pressing 'Sign in with auth0' to access the application",
+        "nl": "Welkom! Meld u aan of log in door op 'Sign in with auth0' te drukken om toegang te krijgen tot de applicatie.",
+        "es": "¡Bienvenido! Regístrese o inicie sesión presionando 'Sign in with auth0' para acceder a la aplicación.",
+        "fr": "Bienvenue! Veuillez vous inscrire ou vous connecter en appuyant sur 'Sign in with auth0' pour accéder à l'application."
     },
     "The request to sign in was denied.": {
         "pt_BR": "O pedido de login foi negado.",
@@ -154,7 +154,7 @@ def translate(message):
 class CustomAuthOAuthView(AuthOAuthView):
     @expose("/login")
     def login(self) -> WerkzeugResponse:
-        flash(translate("Welcome! Please sign up or log in with Auth0 below to access the application."), "info")
+        flash(translate("Welcome! Please sign up or log in by pressing 'Sign in with auth0' to access the application"), "info")
         return super().login()
 
     @expose("/oauth-authorized/<provider>")
