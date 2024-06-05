@@ -30,6 +30,7 @@ from flask_appbuilder.security.manager import AUTH_OAUTH
 from flask_appbuilder.security.views import AuthOAuthView
 from flask_appbuilder import expose
 from flask import flash, get_flashed_messages
+from flask_babel import gettext as _, get_locale
 from werkzeug.wrappers import Response as WerkzeugResponse
 
 from superset.security import SupersetSecurityManager
@@ -38,7 +39,6 @@ from cachelib.file import FileSystemCache
 from celery.schedules import crontab
 
 logger = logging.getLogger()
-
 
 def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
     """Get the environment variable or raise exception."""
@@ -121,11 +121,40 @@ SQLLAB_CTAS_NO_LIMIT = True
 # Custom config for biocultural monitoring deployments by CMI
 AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN")
 
+# Define translations
+translations = {
+    "Welcome! Please sign up or log in with Auth0 below to access the application.": {
+        "pt_BR": "Bem-vindo! Por favor, inscreva-se ou faça login com Auth0 abaixo para acessar o aplicativo.",
+        "en": "Welcome! Please sign up or log in with Auth0 below to access the application.",
+        "nl": "Welkom! Meld u aan of log in met Auth0 hieronder om toegang te krijgen tot de applicatie.",
+        "es": "¡Bienvenido! Regístrese o inicie sesión con Auth0 a continuación para acceder a la aplicación.",
+        "fr": "Bienvenue! Veuillez vous inscrire ou vous connecter avec Auth0 ci-dessous pour accéder à l'application."
+    },
+    "The request to sign in was denied.": {
+        "pt_BR": "O pedido de login foi negado.",
+        "en": "The request to sign in was denied.",
+        "nl": "Het verzoek om in te loggen werd geweigerd.",
+        "es": "La solicitud de inicio de sesión fue denegada.",
+        "fr": "La demande de connexion a été refusée."
+    },
+    "You are not yet authorized to access this application. Please contact a GuardianConnector administrator for access.": {
+        "pt_BR": "Você ainda não está autorizado a acessar este aplicativo. Por favor, entre em contato com um administrador do GuardianConnector para obter acesso.",
+        "en": "You are not yet authorized to access this application. Please contact a GuardianConnector administrator for access.",
+        "nl": "U bent nog niet gemachtigd om toegang te krijgen tot deze applicatie. Neem contact op met een GuardianConnector-beheerder voor toegang.",
+        "es": "Aún no está autorizado para acceder a esta aplicación. Comuníquese con un administrador de GuardianConnector para obtener acceso.",
+        "fr": "Vous n'êtes pas encore autorisé à accéder à cette application. Veuillez contacter un administrateur de GuardianConnector pour obtenir l'accès."
+    }
+}
+
+def translate(message):
+    locale = str(get_locale())
+    return translations.get(message, {}).get(locale, message)
+
 # Extend the default AuthOAuthView to override the default message when the user is not authorized
 class CustomAuthOAuthView(AuthOAuthView):
     @expose("/login")
     def login(self) -> WerkzeugResponse:
-        flash("Welcome! Please sign up or log in with Auth0 below to access the application.", "info")
+        flash(translate("Welcome! Please sign up or log in with Auth0 below to access the application."), "info")
         return super().login()
 
     @expose("/oauth-authorized/<provider>")
@@ -133,8 +162,8 @@ class CustomAuthOAuthView(AuthOAuthView):
         response = super().oauth_authorized(provider)
         
         messages = get_flashed_messages(with_categories=True)
-        if ('error', 'The request to sign in was denied.') in messages:
-            flash("You are not yet authorized to access this application. Please contact a GuardianConnector administrator for access.", "warning")     
+        if ('error', translate("The request to sign in was denied.")) in messages:
+            flash(translate("You are not yet authorized to access this application. Please contact a GuardianConnector administrator for access."), "warning")     
         return response
 
 # https://superset.apache.org/docs/installation/configuring-superset/#custom-oauth2-configuration
