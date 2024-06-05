@@ -1,4 +1,4 @@
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:3.0.2_20231215-0854
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:3.0.3_20240605-1556
 x-superset-depends-on: &superset-depends-on []
 
 version: "3.7"
