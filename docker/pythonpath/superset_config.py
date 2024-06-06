@@ -152,10 +152,10 @@ def translate(message):
 
 # Extend the default AuthOAuthView to override the default message when the user is not authorized
 class CustomAuthOAuthView(AuthOAuthView):
-    @expose("/login")
-    def login(self) -> WerkzeugResponse:
-        flash(translate("Welcome! Please sign up or log in by pressing 'Sign in with auth0' to access the application"), "info")
-        return super().login()
+    # @expose("/login")
+    # def login(self) -> WerkzeugResponse:
+    #     flash(translate("Welcome! Please sign up or log in by pressing 'Sign in with auth0' to access the application"), "info")
+    #     return super().login()
 
     @expose("/oauth-authorized/<provider>")
     def oauth_authorized(self, provider: str) -> WerkzeugResponse:
