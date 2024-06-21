@@ -113,6 +113,9 @@ At the same time, the `superset-init` step seems to get messed up if you're also
 
 #### Step 1: Maintenance page during database initialization
 
+To initialize things you need to define an "admin" user (which will likely never be used again)
+by adding environment variables `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
+
 To avoid unwanted interactions between the app and database initialization, we start a new App by running _only_ the `superset-init` service.
 
 However App Service will kill after a couple minutes if it hasn't found a web server listening on port 8080 so we also run a tiny unimportant web server to keep things looking "healthy" while the database initialization runs. I use `wickerlabs/maintenance`; whatever you use make sure to vet it first that it won't leak your environment variables.
@@ -197,7 +200,7 @@ We are using auth0 for authentication. For auth0 to work, you will need to provi
 
 The starting Role of the user once approved is determined by a `USER_ROLE` environmental variable. Please see [this guide on Superset roles](https://superset.apache.org/docs/security/) to set the appropriate starting Role for your deployment. The fallback value is "Gamma" if the var is not set.
 
-Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/latest/security.html#authentication-methods) for authentication, which can only handle one type of authentication method and this means the standard authentication protocols are not accessible. Hence, for initial Superset db setup, we are using environmental variables to create an admin user whose username should match your auth0 email account. 
+Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/latest/security.html#authentication-methods) for authentication, which can only handle one type of authentication method and this means the standard authentication protocols are not accessible. Hence, for initial Superset db setup, we are using environmental variables to create an admin user whose username should match your auth0 email account.
 
 ## Superset setup
 
