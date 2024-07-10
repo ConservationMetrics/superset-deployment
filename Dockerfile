@@ -17,9 +17,9 @@ RUN pip install --no-cache-dir -r /app/docker/requirements-addons.txt
 
 # This script is what sets config values from environment variables.
 COPY --chown=superset ./docker/pythonpath/superset_config.py /app/pythonpath/
-ENV PYTHONPATH "${PYTHONPATH}:/app/pythonpath/"
+ENV PYTHONPATH="${PYTHONPATH}:/app/pythonpath/"
 
-ENV FLASK_ENV production
-ENV SUPERSET_ENV production
+ENV FLASK_ENV=production
+ENV SUPERSET_ENV=production
 
 RUN chmod a+x /app/docker/*.sh

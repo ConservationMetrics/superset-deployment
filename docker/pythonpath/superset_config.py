@@ -23,7 +23,6 @@
 import json
 import logging
 import os
-from datetime import timedelta
 from typing import Optional
 
 from flask_appbuilder.security.manager import AUTH_OAUTH
@@ -53,6 +52,9 @@ def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
             )
             raise EnvironmentError(error_msg)
 
+APP_NAME = get_env_variable("APP_NAME", "Superset")
+
+APP_ICON = get_env_variable("APP_ICON", "/static/assets/images/superset-logo-horiz.png")
 
 SECRET_KEY = get_env_variable("SECRET_KEY")
 
@@ -98,6 +100,12 @@ class CeleryConfig(object):
 
 CELERY_CONFIG = CeleryConfig
 
+FRAME_ANCESTORS = get_env_variable("FRAME_ANCESTORS", "")
+
+frame_ancestors_list = ["'self'"]
+if FRAME_ANCESTORS:
+    frame_ancestors_list.extend(FRAME_ANCESTORS.split())
+
 # CSP settings as provided by the Talisman extension
 # See https://superset.apache.org/docs/security/#content-security-policy-csp
 TALISMAN_CONFIG = {
@@ -105,7 +113,7 @@ TALISMAN_CONFIG = {
     "content_security_policy": {
         "img-src": "*",
         "media-src": "*",
-        "frame-ancestors": ["'self'", "https://*.guardianconnector.net"]    
+        "frame-ancestors": frame_ancestors_list
     }
 }
 
@@ -137,12 +145,12 @@ translations = {
         "es": "La solicitud de inicio de sesión fue denegada.",
         "fr": "La demande de connexion a été refusée."
     },
-    "You are not yet authorized to access this application. Please contact a GuardianConnector administrator for access.": {
-        "pt_BR": "Você ainda não está autorizado a acessar este aplicativo. Por favor, entre em contato com um administrador do GuardianConnector para obter acesso.",
-        "en": "You are not yet authorized to access this application. Please contact a GuardianConnector administrator for access.",
-        "nl": "U bent nog niet gemachtigd om toegang te krijgen tot deze applicatie. Neem contact op met een GuardianConnector-beheerder voor toegang.",
-        "es": "Aún no está autorizado para acceder a esta aplicación. Comuníquese con un administrador de GuardianConnector para obtener acceso.",
-        "fr": "Vous n'êtes pas encore autorisé à accéder à cette application. Veuillez contacter un administrateur de GuardianConnector pour obtenir l'accès."
+    "You are not yet authorized to access this application. Please contact an administrator for access.": {
+        "pt_BR": "Você ainda não está autorizado a acessar este aplicativo. Por favor, entre em contato com um administrador para obter acesso.",
+        "en": "You are not yet authorized to access this application. Please contact an administrator for access.",
+        "nl": "U bent nog niet gemachtigd om toegang te krijgen tot deze applicatie. Neem contact op met een beheerder voor toegang.",
+        "es": "Aún no está autorizado para acceder a esta aplicación. Comuníquese con un administrador para obtener acceso.",
+        "fr": "Vous n'êtes pas encore autorisé à accéder à cette application. Veuillez contacter un administrateur pour obtenir l'accès."
     }
 }
 
@@ -163,13 +171,38 @@ class CustomAuthOAuthView(AuthOAuthView):
         
         messages = get_flashed_messages(with_categories=True)
         if ('error', translate("The request to sign in was denied.")) in messages:
-            flash(translate("You are not yet authorized to access this application. Please contact a GuardianConnector administrator for access."), "warning")     
+            flash(translate("You are not yet authorized to access this application. Please contact an administrator for access."), "warning")     
         return response
+
+USER_ROLE= get_env_variable("USER_ROLE", "Gamma")
+USER_ROLE_PERMISSIONS = get_env_variable("USER_ROLE_PERMISSIONS", "")
+
+# Parse USER_ROLE_PERMISSIONS into a list of tuples
+if USER_ROLE_PERMISSIONS:
+    user_role_pvms = [
+        tuple(permission.strip("()").split(","))
+        for permission in USER_ROLE_PERMISSIONS.split("),(")
+    ]
+else:
+    user_role_pvms = []
 
 # https://superset.apache.org/docs/installation/configuring-superset/#custom-oauth2-configuration
 # We need to override the default security manager to use Auth0
-class CustomSsoSecurityManager(SupersetSecurityManager):
+class CustomSecurityManager(SupersetSecurityManager):
     authoauthview = CustomAuthOAuthView
+    
+    # https://github.com/apache/superset/issues/8864#issuecomment-1716449362
+    def __init__(self, appbuilder):
+        super().__init__(appbuilder)
+
+        if user_role_pvms:
+            # Find the user role
+            user_role = self.find_role(USER_ROLE)
+            if user_role:
+                for (action, model) in user_role_pvms:
+                    pvm = self.find_permission_view_menu(action, model)
+                    self.add_permission_role(user_role, pvm)
+
 
     def oauth_user_info(self, provider, response=None):
         logging.debug("Oauth2 provider: {0}.".format(provider))
@@ -200,11 +233,11 @@ class CustomSsoSecurityManager(SupersetSecurityManager):
 
 # If you want to use standard Superset authentication and authorization,
 # Comment out CUSTOM_SECURITY_MANAGER and AUTH_TYPE
-CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
+CUSTOM_SECURITY_MANAGER = CustomSecurityManager
 AUTH_TYPE = AUTH_OAUTH
 
 AUTH_USER_REGISTRATION = True
-AUTH_USER_REGISTRATION_ROLE = get_env_variable("USER_ROLE", "Gamma")
+AUTH_USER_REGISTRATION_ROLE = USER_ROLE
 
 OAUTH_PROVIDERS = [{
     'name': 'auth0',

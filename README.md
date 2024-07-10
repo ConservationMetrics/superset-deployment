@@ -51,7 +51,7 @@ First you must commit to a specific release version of Superset, and
 
 - update that version in [`Dockerfile`](Dockerfile)
 - port any new changes to `superset_config.py` from that same tag upstream. This is manual and will require some diffing, something like:
-  - cd ~/dev/superset ; git checkout 3.0.2
+  - cd ~/dev/superset ; git checkout 3.0.3
   - diff ~/dev/superset/docker/pythonpath_dev/superset_config.py ~/dev/superset-deployment/docker/pythonpath/superset_config.py
 
 Now you can build the image, and might as well push it to the container registry too:
@@ -123,7 +123,7 @@ However App Service will kill after a couple minutes if it hasn't found a web se
 The web service exposing port 8080 needs to be the _first_ service listed in a multi-container app! (This is not documented; we should report a bug to Azure...).  If instead you put `superset-init` first, App Service will kill it.
 
 ```yaml
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:3.0.2_20231215-0854
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:3.0.3_20240710-1314
 x-superset-depends-on: &superset-depends-on []
 
 version: "3.7"
@@ -155,7 +155,7 @@ even longer if your PostgreSQL instance is Burstable. Tail the logs (as shown ab
 Remove the `superset-init` service. Replace the maintenance page with the actual Superset web service. Add Celery worker and beat.
 
 ```yaml
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:3.0.2_20231215-0854
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:3.0.3_20240710-1314
 x-superset-depends-on: &superset-depends-on []
 
 version: "3.7"
@@ -201,6 +201,15 @@ We are using auth0 for authentication. For auth0 to work, you will need to provi
 The starting Role of the user once approved is determined by a `USER_ROLE` environmental variable. Please see [this guide on Superset roles](https://superset.apache.org/docs/security/) to set the appropriate starting Role for your deployment. The fallback value is "Gamma" if the var is not set.
 
 Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/latest/security.html#authentication-methods) for authentication, which can only handle one type of authentication method and this means the standard authentication protocols are not accessible. Hence, for initial Superset db setup, we are using environmental variables to create an admin user whose username should match your auth0 email account.
+
+## Optional environmental variables
+
+To allow for flexible customization, we have provided several optional environmental variables (commented out in `.env.sample`):
+
+* `APP_NAME`: if you want the page title for the dashboard to be something different than "Superset"
+* `APP_ICON`: to change the Superset logo shown on the top left of the window.
+* `USER_ROLE_PERMISSIONS`: if you want to assign additional permissions to the Starting role of a user once approved as defined in `USER_ROLE`.
+* `FRAME_ANCESTORS`: to provide a comma separated list of permissible frame ancestors for your CSP.
 
 ## Superset setup
 
