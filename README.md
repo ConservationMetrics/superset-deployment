@@ -208,7 +208,7 @@ To allow for flexible customization, we have provided several optional environme
 
 * `APP_NAME`: if you want the page title for the dashboard to be something different than "Superset"
 * `APP_ICON`: to change the Superset logo shown on the top left of the window.
-* `USER_ROLE_PERMISSIONS`: if you want to assign additional permissions to the Starting role of a user once approved as defined in `USER_ROLE`.
+* `USER_ROLE_PERMISSIONS`: if you want to assign additional permissions to the Starting role of a user once approved as defined in `USER_ROLE`. Note that setting these means that any changes made to the permissions for that user role (e.g. in the Superset UI) will be overwritten upon deployment of the application.
 * `FRAME_ANCESTORS`: to provide a comma separated list of permissible frame ancestors for your CSP.
 
 ## Superset setup
