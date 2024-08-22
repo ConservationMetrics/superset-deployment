@@ -181,7 +181,7 @@ USER_ROLE_PERMISSIONS = get_env_variable("USER_ROLE_PERMISSIONS", "")
 if USER_ROLE_PERMISSIONS:
     user_role_pvms = [
         tuple(permission.strip("()").split(","))
-        for permission in USER_ROLE_PERMISSIONS.split("),(")
+        for permission in USER_ROLE_PERMISSIONS.replace("),(", ")|(").split("|")
     ]
 else:
     user_role_pvms = []
@@ -199,10 +199,17 @@ class CustomSecurityManager(SupersetSecurityManager):
             # Find the user role
             user_role = self.find_role(USER_ROLE)
             if user_role:
-                for (action, model) in user_role_pvms:
-                    pvm = self.find_permission_view_menu(action, model)
-                    self.add_permission_role(user_role, pvm)
-
+                for permission in user_role_pvms:
+                    if len(permission) == 2:
+                        action, model = permission
+                        if model:  # Check if model is provided
+                            pvm = self.find_permission_view_menu(action, model)
+                            self.add_permission_role(user_role, pvm)
+                        else:
+                            pvm = self.find_permission(action)
+                            self.add_permission_role(user_role, pvm)
+                    else:
+                        logger.error(f"Invalid permission format: {permission}")
 
     def oauth_user_info(self, provider, response=None):
         logging.debug("Oauth2 provider: {0}.".format(provider))
