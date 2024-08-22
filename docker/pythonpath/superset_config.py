@@ -111,7 +111,7 @@ if FRAME_ANCESTORS:
 TALISMAN_CONFIG = {
     "force_https": False,
     "content_security_policy": {
-        "img-src": "*",
+        "img-src": ["*", "data:"],
         "media-src": "*",
         "frame-ancestors": frame_ancestors_list
     }
