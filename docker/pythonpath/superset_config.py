@@ -181,10 +181,11 @@ USER_ROLE_PERMISSIONS = get_env_variable("USER_ROLE_PERMISSIONS", "")
 if USER_ROLE_PERMISSIONS:
     user_role_pvms = [
         tuple(permission.strip("()").split(","))
-        for permission in USER_ROLE_PERMISSIONS.replace("),(", ")|(").split("|")
+        for permission in USER_ROLE_PERMISSIONS.split("),(")
     ]
 else:
     user_role_pvms = []
+  
 
 # https://superset.apache.org/docs/installation/configuring-superset/#custom-oauth2-configuration
 # We need to override the default security manager to use Auth0
@@ -194,22 +195,26 @@ class CustomSecurityManager(SupersetSecurityManager):
     # https://github.com/apache/superset/issues/8864#issuecomment-1716449362
     def __init__(self, appbuilder):
         super().__init__(appbuilder)
-
+        
         if user_role_pvms:
             # Find the user role
             user_role = self.find_role(USER_ROLE)
+            
+            logger.info(f"User role permissions to add to {user_role}: {user_role_pvms}")
+            
             if user_role:
                 for permission in user_role_pvms:
                     if len(permission) == 2:
                         action, model = permission
-                        if model:  # Check if model is provided
-                            pvm = self.find_permission_view_menu(action, model)
-                            self.add_permission_role(user_role, pvm)
+                        pvm = self.find_permission_view_menu(action, model)
+                        if pvm is None:
+                            logger.error(f"Permission {permission} not found for role {user_role}")
                         else:
-                            pvm = self.find_permission(action)
+                            logger.info(f"Adding permission {pvm} to role {user_role}")
                             self.add_permission_role(user_role, pvm)
                     else:
-                        logger.error(f"Invalid permission format: {permission}")
+                        logger.info("Permission is not a tuple. Skipping...")
+
 
     def oauth_user_info(self, provider, response=None):
         logging.debug("Oauth2 provider: {0}.".format(provider))
