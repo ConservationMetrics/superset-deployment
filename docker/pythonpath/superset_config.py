@@ -213,7 +213,7 @@ class CustomSecurityManager(SupersetSecurityManager):
                             logger.info(f"Adding permission {pvm} to role {user_role}")
                             self.add_permission_role(user_role, pvm)
                     else:
-                        logger.info("Permission is not a tuple. Skipping...")
+                        logger.warning("Permission is not a 2-tuple. Skipping...")
 
 
     def oauth_user_info(self, provider, response=None):
