@@ -276,7 +276,7 @@ OAUTH_PROVIDERS = [{
 }]
 
 LANGUAGES = json.loads(get_env_variable("LANGUAGES", '{}'))
-MAPBOX_API_KEY = get_env_variable("MAPBOX_API_KEY")
+MAPBOX_API_KEY = get_env_variable("MAPBOX_API_KEY", "")
 
 # Sanitization settings to allow iframes and style tags in markdown
 HTML_SANITIZATION_SCHEMA_EXTENSIONS = {
