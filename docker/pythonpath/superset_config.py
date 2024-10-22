@@ -126,9 +126,6 @@ WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
 
 SQLLAB_CTAS_NO_LIMIT = True
 
-# Custom config for biocultural monitoring deployments by CMI
-AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN")
-
 # Define translations
 translations = {
     "Welcome! Please sign up or log in by pressing 'Sign in with auth0' to access the application": {
@@ -243,37 +240,39 @@ class CustomSecurityManager(SupersetSecurityManager):
                 'last_name': last_name
             }
 
-# If you want to use standard Superset authentication and authorization,
-# Comment out CUSTOM_SECURITY_MANAGER and AUTH_TYPE
-CUSTOM_SECURITY_MANAGER = CustomSecurityManager
-AUTH_TYPE = AUTH_OAUTH
+# Uses standard Superset authentication and authorization by default.
+# To use Auth0 instead, set the three AUTH0_* variables:
+AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN", "")
+if AUTH0_DOMAIN:
+    CUSTOM_SECURITY_MANAGER = CustomSecurityManager
+    AUTH_TYPE = AUTH_OAUTH
 
-AUTH_USER_REGISTRATION = True
-AUTH_USER_REGISTRATION_ROLE = USER_ROLE
+    AUTH_USER_REGISTRATION = True
+    AUTH_USER_REGISTRATION_ROLE = USER_ROLE
 
-OAUTH_PROVIDERS = [{
-    'name': 'auth0',
-    'token_key': 'access_token',
-    'icon': 'fa-google',
-    'remote_app': {
-        'client_id': get_env_variable("AUTH0_CLIENTID"),
-        'client_secret': get_env_variable("AUTH0_CLIENT_SECRET"),
-        'client_kwargs': {
-            'scope': 'openid profile email',
-        },
-        'access_token_method':'POST',
-        'access_token_params':{
-            'client_id':get_env_variable("AUTH0_CLIENTID")
-        },
-        'jwks_uri': f'https://{AUTH0_DOMAIN}/.well-known/jwks.json',
-        'access_token_headers':{
-            'Authorization': 'Basic Base64EncodedClientIdAndSecret'
-        },
-        'api_base_url':f'https://{AUTH0_DOMAIN}/oauth/',
-        'access_token_url': f'https://{AUTH0_DOMAIN}/oauth/token',
-        'authorize_url': f'https://{AUTH0_DOMAIN}/authorize'
-    }
-}]
+    OAUTH_PROVIDERS = [{
+        'name': 'auth0',
+        'token_key': 'access_token',
+        'icon': 'fa-google',
+        'remote_app': {
+            'client_id': get_env_variable("AUTH0_CLIENTID"),  # required now that AUTH0_DOMAIN was set
+            'client_secret': get_env_variable("AUTH0_CLIENT_SECRET"),  # required now that AUTH0_DOMAIN was set
+            'client_kwargs': {
+                'scope': 'openid profile email',
+            },
+            'access_token_method':'POST',
+            'access_token_params':{
+                'client_id':get_env_variable("AUTH0_CLIENTID")
+            },
+            'jwks_uri': f'https://{AUTH0_DOMAIN}/.well-known/jwks.json',
+            'access_token_headers':{
+                'Authorization': 'Basic Base64EncodedClientIdAndSecret'
+            },
+            'api_base_url':f'https://{AUTH0_DOMAIN}/oauth/',
+            'access_token_url': f'https://{AUTH0_DOMAIN}/oauth/token',
+            'authorize_url': f'https://{AUTH0_DOMAIN}/authorize'
+        }
+    }]
 
 LANGUAGES = json.loads(get_env_variable("LANGUAGES", '{}'))
 MAPBOX_API_KEY = get_env_variable("MAPBOX_API_KEY", "")
