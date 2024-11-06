@@ -210,6 +210,7 @@ To allow for flexible customization, we have provided several optional environme
 * `APP_ICON`: to change the Superset logo shown on the top left of the window.
 * `USER_ROLE_PERMISSIONS`: if you want to assign additional permissions to the Starting role of a user once approved as defined in `USER_ROLE`. Note that setting these means that any changes made to the permissions for that user role (e.g. in the Superset UI) will be overwritten upon deployment of the application.
 * `FRAME_ANCESTORS`: to provide a comma separated list of permissible frame ancestors for your CSP.
+* `MAPBOX_API_KEY`
 
 ## Superset setup
 
@@ -221,3 +222,18 @@ Once you have a working website, and logging in as admin is not giving role/perm
 - [ ] add the warehouse database
 - [ ] create your first chart or dashboard
 - [ ] (optional, TBD) DNS mapping...
+
+## Upgrading
+
+Often it's enough to bump the Docker image to a newer version. However some
+superset upgrades require a Database migration. That is done by running:
+
+    superset db upgrade
+
+This is easy to do if you have direct access to exec into the Docker container.
+However in Azure App Service, or if you want to automate this step away, you could
+add it to the `command` of one of the Docker services:
+
+```yaml
+    command: sh -c "superset db upgrade ; /app/docker/docker-boostrap beat"
+```
