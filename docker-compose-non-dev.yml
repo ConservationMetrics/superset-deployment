@@ -1,7 +1,6 @@
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:3.0.3_20240829-1117
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:4.1.1_20241220-1341
 x-superset-depends-on: &superset-depends-on []
 
-version: "3.7"
 services:
   superset:
     env_file: docker/.env-non-dev
