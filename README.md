@@ -39,9 +39,9 @@ At the moment, we share one Redis cache across all clients, with its keyspace pa
 
 This repo roughly follows [how superset's own code base gets you started with Docker](https://github.com/apache/superset/tree/master/docker#production), but removes a lot of the distraction around local development, which is the focus of superset's documentation.
 
-The docker image we'll build in this repo lets you inject configuration settings
-from environment variables. It does this in the script `docker/pythonpath/superset_config.py`,
-which is added to the image's `PYTHONPATH`.
+The docker image we'll build in this repo
+* lets you inject configuration settings from environment variables _without having to mount a `superset_config.py` from the host filesystem._ This is desireable when we want to reduce dependencies at deploy time. It does this by building `docker/pythonpath/superset_config.py` into the image itself, and adding it to the image's `PYTHONPATH`.
+* adds OAuth authentication (more on this below), including building in the required `Authlib` python package.
 
 ### Docker build
 
@@ -75,15 +75,17 @@ more comfortable environment.
 3. `docker-compose up`. Note that `superset-init` takes a few minutes to complete (it will terminate once done), and the rest of the app is unusable/buggy until then.
 4. Open a browser to [`localhost:8088`](http://localhost:8088)
 
-## Cloud VM
+### Running in Production
 
 Your VM should have at least 4GB RAM (The official guidance from Apache is 8GB but I've never had a problem with only 4GB).
 
 We will run the app on its default port `8088`: you will need to point incoming requests to that.
 
+#### Environment variables
+
 In all these services, the environment file specified by the `env_file` key is optional. This is to allow certain deployment scenarios where the environment variables get injected by other means besides a file.
 
-#### Step 1: Maintenance page during database initialization
+#### Database initialization
 
 To initialize things you need to define an "admin" user (which will likely never be used again)
 by adding environment variables `ADMIN_EMAIL` and `ADMIN_PASSWORD` on the `superset-init` service.
@@ -91,9 +93,8 @@ by adding environment variables `ADMIN_EMAIL` and `ADMIN_PASSWORD` on the `super
 The database will initialize itself upon startup via the init container ([`superset-init`](./docker-init.sh)). This may take a few minutes.
 Tail the logs (as shown above): If you haven't seen "Completed Step 3/3", it's not done.
 
-#### Step 2: Remove init, Launch the App
+After it's done, you _may_ remove the `superset-init` service.
 
-Remove the `superset-init` service.
 
 ## Authentication
 
