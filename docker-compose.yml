@@ -4,7 +4,9 @@ x-superset-depends-on: &superset-depends-on []
 version: "3.7"
 services:
   superset:
-    env_file: docker/.env
+    env_file:
+      - path: docker/.env
+        required: false
     image: *superset-image
     container_name: superset_app
     command: ["/app/docker/docker-bootstrap.sh", "app-gunicorn"]
@@ -15,7 +17,9 @@ services:
     depends_on: *superset-depends-on
 
   superset-init:
-    env_file: docker/.env
+    env_file:
+      - path: docker/.env
+        required: false
     image: *superset-image
     container_name: superset_init
     command: ["/app/docker/docker-init.sh"]
@@ -23,7 +27,9 @@ services:
     depends_on: *superset-depends-on
 
   superset-worker:
-    env_file: docker/.env
+    env_file:
+      - path: docker/.env
+        required: false
     image: *superset-image
     container_name: superset_worker
     command: ["/app/docker/docker-bootstrap.sh", "worker"]
@@ -32,7 +38,9 @@ services:
     depends_on: *superset-depends-on
 
   superset-worker-beat:
-    env_file: docker/.env
+    env_file:
+      - path: docker/.env
+        required: false
     image: *superset-image
     container_name: superset_worker_beat
     command: ["/app/docker/docker-bootstrap.sh", "beat"]

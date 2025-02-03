@@ -81,6 +81,8 @@ Your VM should have at least 4GB RAM (The official guidance from Apache is 8GB b
 
 We will run the app on its default port `8088`: you will need to point incoming requests to that.
 
+In all these services, the environment file specified by the `env_file` key is optional. This is to allow certain deployment scenarios where the environment variables get injected by other means besides a file.
+
 #### Step 1: Maintenance page during database initialization
 
 To initialize things you need to define an "admin" user (which will likely never be used again)
