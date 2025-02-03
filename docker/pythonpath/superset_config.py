@@ -39,6 +39,7 @@ from celery.schedules import crontab
 
 logger = logging.getLogger()
 
+
 def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
     """Get the environment variable or raise exception."""
     try:
@@ -47,10 +48,9 @@ def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
         if default is not None:
             return default
         else:
-            error_msg = "The environment variable {} was missing, abort...".format(
-                var_name
-            )
+            error_msg = "The environment variable {} was missing, abort...".format(var_name)
             raise EnvironmentError(error_msg)
+
 
 APP_NAME = get_env_variable("APP_NAME", "Superset")
 
@@ -82,9 +82,7 @@ EXPLORE_FORM_DATA_CACHE_CONFIG = CACHE_CONFIG
 class CeleryConfig(object):
     broker_url = os.path.join(REDIS_URL, REDIS_CELERY_DB) + "?ssl_cert_reqs=optional"
     imports = ("superset.sql_lab",)
-    result_backend = (
-        os.path.join(REDIS_URL, REDIS_RESULTS_DB) + "?ssl_cert_reqs=optional"
-    )
+    result_backend = os.path.join(REDIS_URL, REDIS_RESULTS_DB) + "?ssl_cert_reqs=optional"
     worker_prefetch_multiplier = 1
     task_acks_late = False
     beat_schedule = {
@@ -97,6 +95,7 @@ class CeleryConfig(object):
             "schedule": crontab(minute=10, hour=0),
         },
     }
+
 
 CELERY_CONFIG = CeleryConfig
 
@@ -113,12 +112,12 @@ TALISMAN_CONFIG = {
     "content_security_policy": {
         "img-src": ["*", "data:"],
         "media-src": "*",
-        "frame-ancestors": frame_ancestors_list
-    }
+        "frame-ancestors": frame_ancestors_list,
+    },
 }
 
 # https://github.com/apache/superset/blob/master/RESOURCES/FEATURE_FLAGS.md
-FEATURE_FLAGS = { "ALERT_REPORTS": True}
+FEATURE_FLAGS = {"ALERT_REPORTS": True}
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
 WEBDRIVER_BASEURL = "http://superset:8088/"
 # The base URL for the email report hyperlinks.
@@ -133,27 +132,29 @@ translations = {
         "en": "Welcome! Please sign up or log in by pressing 'Sign in with auth0' to access the application",
         "nl": "Welkom! Meld u aan of log in door op 'Sign in with auth0' te drukken om toegang te krijgen tot de applicatie.",
         "es": "¡Bienvenido! Regístrese o inicie sesión presionando 'Sign in with auth0' para acceder a la aplicación.",
-        "fr": "Bienvenue! Veuillez vous inscrire ou vous connecter en appuyant sur 'Sign in with auth0' pour accéder à l'application."
+        "fr": "Bienvenue! Veuillez vous inscrire ou vous connecter en appuyant sur 'Sign in with auth0' pour accéder à l'application.",
     },
     "The request to sign in was denied.": {
         "pt_BR": "O pedido de login foi negado.",
         "en": "The request to sign in was denied.",
         "nl": "Het verzoek om in te loggen werd geweigerd.",
         "es": "La solicitud de inicio de sesión fue denegada.",
-        "fr": "La demande de connexion a été refusée."
+        "fr": "La demande de connexion a été refusée.",
     },
     "You are not yet authorized to access this application. Please contact an administrator for access.": {
         "pt_BR": "Você ainda não está autorizado a acessar este aplicativo. Por favor, entre em contato com um administrador para obter acesso.",
         "en": "You are not yet authorized to access this application. Please contact an administrator for access.",
         "nl": "U bent nog niet gemachtigd om toegang te krijgen tot deze applicatie. Neem contact op met een beheerder voor toegang.",
         "es": "Aún no está autorizado para acceder a esta aplicación. Comuníquese con un administrador para obtener acceso.",
-        "fr": "Vous n'êtes pas encore autorisé à accéder à cette application. Veuillez contacter un administrateur pour obtenir l'accès."
-    }
+        "fr": "Vous n'êtes pas encore autorisé à accéder à cette application. Veuillez contacter un administrateur pour obtenir l'accès.",
+    },
 }
+
 
 def translate(message):
     locale = str(get_locale())
     return translations.get(message, {}).get(locale, message)
+
 
 # Extend the default AuthOAuthView to override the default message when the user is not authorized
 class CustomAuthOAuthView(AuthOAuthView):
@@ -165,13 +166,19 @@ class CustomAuthOAuthView(AuthOAuthView):
     @expose("/oauth-authorized/<provider>")
     def oauth_authorized(self, provider: str) -> WerkzeugResponse:
         response = super().oauth_authorized(provider)
-        
+
         messages = get_flashed_messages(with_categories=True)
-        if ('error', translate("The request to sign in was denied.")) in messages:
-            flash(translate("You are not yet authorized to access this application. Please contact an administrator for access."), "warning")     
+        if ("error", translate("The request to sign in was denied.")) in messages:
+            flash(
+                translate(
+                    "You are not yet authorized to access this application. Please contact an administrator for access."
+                ),
+                "warning",
+            )
         return response
 
-USER_ROLE= get_env_variable("USER_ROLE", "Gamma")
+
+USER_ROLE = get_env_variable("USER_ROLE", "Gamma")
 USER_ROLE_PERMISSIONS = get_env_variable("USER_ROLE_PERMISSIONS", "")
 
 # Parse USER_ROLE_PERMISSIONS into a list of tuples
@@ -182,23 +189,23 @@ if USER_ROLE_PERMISSIONS:
     ]
 else:
     user_role_pvms = []
-  
+
 
 # https://superset.apache.org/docs/installation/configuring-superset/#custom-oauth2-configuration
 # We need to override the default security manager to use Auth0
 class CustomSecurityManager(SupersetSecurityManager):
     authoauthview = CustomAuthOAuthView
-    
+
     # https://github.com/apache/superset/issues/8864#issuecomment-1716449362
     def __init__(self, appbuilder):
         super().__init__(appbuilder)
-        
+
         if user_role_pvms:
             # Find the user role
             user_role = self.find_role(USER_ROLE)
-            
+
             logger.info(f"User role permissions to add to {user_role}: {user_role_pvms}")
-            
+
             if user_role:
                 for permission in user_role_pvms:
                     if len(permission) == 2:
@@ -212,13 +219,14 @@ class CustomSecurityManager(SupersetSecurityManager):
                     else:
                         logger.warning("Permission is not a 2-tuple. Skipping...")
 
-
     def oauth_user_info(self, provider, response=None):
         logging.debug("Oauth2 provider: {0}.".format(provider))
-        if provider == 'auth0':
-            res = self.appbuilder.sm.oauth_remotes[provider].get(f'https://{AUTH0_DOMAIN}/userinfo')
+        if provider == "auth0":
+            res = self.appbuilder.sm.oauth_remotes[provider].get(
+                f"https://{AUTH0_DOMAIN}/userinfo"
+            )
             if res.raw.status != 200:
-                logger.error('Failed to obtain user info.')
+                logger.error("Failed to obtain user info.")
                 return
             me = res.json()
             # Uncomment the following line to inspect the returned user data
@@ -229,16 +237,17 @@ class CustomSecurityManager(SupersetSecurityManager):
             # not robust since some people have multiple first or last names
             # and naming conventions across the world vary (e.g. some cultures
             # put the last name first).
-            name_parts = me['name'].rsplit(maxsplit=1)
+            name_parts = me["name"].rsplit(maxsplit=1)
             first_name = name_parts[0]
-            last_name = name_parts[1] if len(name_parts) > 1 else ''
+            last_name = name_parts[1] if len(name_parts) > 1 else ""
 
             return {
-                'username' : me['email'],
-                'email' : me['email'],
-                'first_name': first_name, 
-                'last_name': last_name
+                "username": me["email"],
+                "email": me["email"],
+                "first_name": first_name,
+                "last_name": last_name,
             }
+
 
 # Uses standard Superset authentication and authorization by default.
 # To use Auth0 instead, set the three AUTH0_* variables:
@@ -250,39 +259,51 @@ if AUTH0_DOMAIN:
     AUTH_USER_REGISTRATION = True
     AUTH_USER_REGISTRATION_ROLE = USER_ROLE
 
-    OAUTH_PROVIDERS = [{
-        'name': 'auth0',
-        'token_key': 'access_token',
-        'icon': 'fa-google',
-        'remote_app': {
-            'client_id': get_env_variable("AUTH0_CLIENTID"),  # required now that AUTH0_DOMAIN was set
-            'client_secret': get_env_variable("AUTH0_CLIENT_SECRET"),  # required now that AUTH0_DOMAIN was set
-            'client_kwargs': {
-                'scope': 'openid profile email',
+    OAUTH_PROVIDERS = [
+        {
+            "name": "auth0",
+            "token_key": "access_token",
+            "icon": "fa-google",
+            "remote_app": {
+                "client_id": get_env_variable(
+                    "AUTH0_CLIENTID"
+                ),  # required now that AUTH0_DOMAIN was set
+                "client_secret": get_env_variable(
+                    "AUTH0_CLIENT_SECRET"
+                ),  # required now that AUTH0_DOMAIN was set
+                "client_kwargs": {
+                    "scope": "openid profile email",
+                },
+                "access_token_method": "POST",
+                "access_token_params": {"client_id": get_env_variable("AUTH0_CLIENTID")},
+                "jwks_uri": f"https://{AUTH0_DOMAIN}/.well-known/jwks.json",
+                "access_token_headers": {"Authorization": "Basic Base64EncodedClientIdAndSecret"},
+                "api_base_url": f"https://{AUTH0_DOMAIN}/oauth/",
+                "access_token_url": f"https://{AUTH0_DOMAIN}/oauth/token",
+                "authorize_url": f"https://{AUTH0_DOMAIN}/authorize",
             },
-            'access_token_method':'POST',
-            'access_token_params':{
-                'client_id':get_env_variable("AUTH0_CLIENTID")
-            },
-            'jwks_uri': f'https://{AUTH0_DOMAIN}/.well-known/jwks.json',
-            'access_token_headers':{
-                'Authorization': 'Basic Base64EncodedClientIdAndSecret'
-            },
-            'api_base_url':f'https://{AUTH0_DOMAIN}/oauth/',
-            'access_token_url': f'https://{AUTH0_DOMAIN}/oauth/token',
-            'authorize_url': f'https://{AUTH0_DOMAIN}/authorize'
         }
-    }]
+    ]
 
-LANGUAGES = json.loads(get_env_variable("LANGUAGES", '{}'))
+LANGUAGES = json.loads(get_env_variable("LANGUAGES", "{}"))
 MAPBOX_API_KEY = get_env_variable("MAPBOX_API_KEY", "")
 
 # Sanitization settings to allow iframes and style tags in markdown
 HTML_SANITIZATION_SCHEMA_EXTENSIONS = {
-  "attributes": {
-    "*": ["style","className","src","width","height","frameborder","marginwidth","marginheight","scrolling"],
-  },
-  "tagNames": ["style", "iframe", "h1", "h2", "h3", "h4", "h5", "h6"],
+    "attributes": {
+        "*": [
+            "style",
+            "className",
+            "src",
+            "width",
+            "height",
+            "frameborder",
+            "marginwidth",
+            "marginheight",
+            "scrolling",
+        ],
+    },
+    "tagNames": ["style", "iframe", "h1", "h2", "h3", "h4", "h5", "h6"],
 }
 
 #
@@ -293,8 +314,6 @@ try:
     import superset_config_docker
     from superset_config_docker import *  # noqa
 
-    logger.info(
-        f"Loaded your Docker configuration at " f"[{superset_config_docker.__file__}]"
-    )
+    logger.info(f"Loaded your Docker configuration at [{superset_config_docker.__file__}]")
 except ImportError:
     logger.info("Using default Docker config...")
