@@ -1,4 +1,4 @@
-# Deploy Superset using Docker Compose
+# Deploy Superset using CapRover or Docker Compose
 
 [Apache Superset](https://github.com/apache/superset/) is a data exploration and data visualization platform.
 
@@ -6,7 +6,7 @@ The project's technical documentation makes it easy to get up-and-running locall
 laptop), but does not support a dockerized production deployment. Instead they recommend using helm,
 either on a Kubernetes cluster or a single VM using minikube.
 
-This `superset-deployment` helps you deploy Superset for production using **docker compose**.
+This `superset-deployment` helps you deploy Superset for production using **docker compose** or [**CapRover**](https://caprover.com/).
 
 ## Hardware & Infrastructure
 
@@ -72,10 +72,19 @@ more comfortable environment.
 2. Put environment variables in a new file called `docker/.env`
    - you may first `cp docker/.env-sample docker/.env`
    - make sure `DATABASE_URI` and `REDIS_URL` point to non-production services (assuming you want that)
-3. `docker-compose up`. Note that `superset-init` takes a few minutes to complete (it will terminate once done), and the rest of the app is unusable/buggy until then.
+3. `docker compose up`. Note that `superset-init` takes a few minutes to complete (it will terminate once done), and the rest of the app is unusable/buggy until then.
 4. Open a browser to [`localhost:8088`](http://localhost:8088)
 
 ### Running in Production
+
+Using **CapRover**:
+- install superset using the [one-click app](./caprover/one-click-apps/README.md)
+
+Using **docker compose**
+- Run `docker compose up`
+
+
+#### Prerequisites
 
 Your VM should have at least 4GB RAM (The official guidance from Apache is 8GB but I've never had a problem with only 4GB).
 
@@ -139,3 +148,5 @@ add it to the `command` of one of the Docker services:
 ```yaml
     command: sh -c "superset db upgrade ; /app/docker/docker-boostrap beat"
 ```
+
+The one-click app for CapRover already includes this in its `init-and-beat` service.
