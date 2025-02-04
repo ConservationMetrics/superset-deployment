@@ -8,6 +8,11 @@ either on a Kubernetes cluster or a single VM using minikube.
 
 This `superset-deployment` helps you deploy Superset for production using **docker compose**.
 
+It also takes an opinionated approach that it will be deployed with:
+- Auth0 login
+- Postgresql for the database
+- Redis for the cache
+
 ## Hardware & Infrastructure
 
 Superset is a multi-container deployment, comprising

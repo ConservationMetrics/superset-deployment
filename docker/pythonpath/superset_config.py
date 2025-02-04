@@ -23,6 +23,7 @@
 import json
 import logging
 import os
+from datetime import timedelta
 from typing import Optional
 
 from flask_appbuilder.security.manager import AUTH_OAUTH
@@ -61,39 +62,71 @@ SECRET_KEY = get_env_variable("SECRET_KEY")
 # The SQLAlchemy connection string.
 SQLALCHEMY_DATABASE_URI = get_env_variable("DATABASE_URI")
 
+# We don't bother with redis database numbers here.
+# But the user could encode one into their REDIS_URL if they want that.
 REDIS_URL = get_env_variable("REDIS_URL")
 CACHE_KEY_PREFIX = get_env_variable("CACHE_KEY_PREFIX", "superset_")
-REDIS_CELERY_DB = get_env_variable("REDIS_CELERY_DB", "0")
-REDIS_RESULTS_DB = get_env_variable("REDIS_RESULTS_DB", "1")
 
-RESULTS_BACKEND = FileSystemCache("/app/superset_home/sqllab")
-
+# Default cache for Superset objects
 CACHE_CONFIG = {
-    "CACHE_TYPE": "redis",
-    "CACHE_DEFAULT_TIMEOUT": 300,
-    "CACHE_KEY_PREFIX": CACHE_KEY_PREFIX,
+    "CACHE_TYPE": "RedisCache",
+    "CACHE_DEFAULT_TIMEOUT": 21600,  # 60 seconds * 60 minutes * 6 hours
+    "CACHE_KEY_PREFIX": f"{CACHE_KEY_PREFIX}cache_",
     "CACHE_REDIS_URL": REDIS_URL,
 }
-DATA_CACHE_CONFIG = CACHE_CONFIG
-FILTER_STATE_CACHE_CONFIG = CACHE_CONFIG
-EXPLORE_FORM_DATA_CACHE_CONFIG = CACHE_CONFIG
+
+# Cache for datasource metadata and query results
+DATA_CACHE_CONFIG = {
+    "CACHE_TYPE": "RedisCache",
+    "CACHE_DEFAULT_TIMEOUT": 21600,  # 60 seconds * 60 minutes * 6 hours
+    "CACHE_KEY_PREFIX": f"{CACHE_KEY_PREFIX}data_",
+    "CACHE_REDIS_URL": REDIS_URL,
+}
+
+# Cache for dashboard filter state.
+FILTER_STATE_CACHE_CONFIG = {
+    "CACHE_TYPE": "RedisCache",
+    "CACHE_DEFAULT_TIMEOUT": 21600,  # 60 seconds * 60 minutes * 6 hours
+    "CACHE_KEY_PREFIX": f"{CACHE_KEY_PREFIX}filtr_",
+    "CACHE_REDIS_URL": REDIS_URL,
+}
+
+# Cache for explore form data state.
+EXPLORE_FORM_DATA_CACHE_CONFIG = {
+    "CACHE_TYPE": "RedisCache",
+    "CACHE_DEFAULT_TIMEOUT": 21600,  # 60 seconds * 60 minutes * 6 hours
+    "CACHE_KEY_PREFIX": f"{CACHE_KEY_PREFIX}explr_",
+    "CACHE_REDIS_URL": REDIS_URL,
+}
+
+# This is used as a workaround for the alerts & reports scheduler task to get the time
+# celery beat triggered it, see https://github.com/celery/celery/issues/6974 for details
+CELERY_BEAT_SCHEDULER_EXPIRES = timedelta(weeks=1)
+RESULTS_BACKEND = FileSystemCache("/app/superset_home/sqllab")
 
 
 class CeleryConfig(object):
-    broker_url = os.path.join(REDIS_URL, REDIS_CELERY_DB) + "?ssl_cert_reqs=optional"
+    broker_url = (REDIS_URL,)
     imports = ("superset.sql_lab",)
-    result_backend = os.path.join(REDIS_URL, REDIS_RESULTS_DB) + "?ssl_cert_reqs=optional"
+    result_backend = (REDIS_URL,)
     worker_prefetch_multiplier = 1
     task_acks_late = False
     beat_schedule = {
         "reports.scheduler": {
             "task": "reports.scheduler",
             "schedule": crontab(minute="*", hour="*"),
+            "options": {"expires": int(CELERY_BEAT_SCHEDULER_EXPIRES.total_seconds())},
         },
         "reports.prune_log": {
             "task": "reports.prune_log",
             "schedule": crontab(minute=10, hour=0),
         },
+        # Uncomment to enable pruning of the query table
+        # "prune_query": {
+        #     "task": "prune_query",
+        #     "schedule": crontab(minute=0, hour=0, day_of_month=1),
+        #     "options": {"retention_period_days": 180},
+        # },
     }
 
 
