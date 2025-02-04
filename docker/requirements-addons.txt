@@ -2,3 +2,5 @@
 authlib>=1.3.1,<2
 # Install database drivers: https://superset.apache.org/docs/configuration/databases/#installing-database-drivers
 psycopg2-binary~=2.9.10
+# Install redis cache client: https://superset.apache.org/docs/configuration/cache/#dependencies
+redis~=5.2
