@@ -49,13 +49,13 @@ First you must commit to a specific release version of Superset, and
 
 - update that version in [`Dockerfile`](Dockerfile)
 - port any new changes to `superset_config.py` from that same tag upstream. This is manual and will require some diffing, something like:
-  - cd ~/dev/superset ; git checkout 3.1.3
+  - cd ~/dev/superset ; git checkout 4.1.1
   - diff ~/dev/superset/docker/pythonpath_dev/superset_config.py ~/dev/superset-deployment/docker/pythonpath/superset_config.py
 
 Now you can build the image, and might as well push it to the container registry too:
 
 ```bash
-SS_VERSION=3.1.3
+SS_VERSION=4.1.1
 BUILD=$(date +"%Y%m%d-%H%M")
 OUR_TAG="${SS_VERSION}_${BUILD}"
 docker build -t guardiancr.azurecr.io/superset-docker:${OUR_TAG} .
