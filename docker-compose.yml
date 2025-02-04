@@ -4,18 +4,22 @@ x-superset-depends-on: &superset-depends-on []
 version: "3.7"
 services:
   superset:
-    env_file: docker/.env-non-dev
+    env_file:
+      - path: docker/.env
+        required: false
     image: *superset-image
     container_name: superset_app
     command: ["/app/docker/docker-bootstrap.sh", "app-gunicorn"]
     user: "root"
     restart: unless-stopped
     ports:
-      - "8080:8088"
+      - "8088:8088"
     depends_on: *superset-depends-on
 
   superset-init:
-    env_file: docker/.env-non-dev
+    env_file:
+      - path: docker/.env
+        required: false
     image: *superset-image
     container_name: superset_init
     command: ["/app/docker/docker-init.sh"]
@@ -23,7 +27,9 @@ services:
     depends_on: *superset-depends-on
 
   superset-worker:
-    env_file: docker/.env-non-dev
+    env_file:
+      - path: docker/.env
+        required: false
     image: *superset-image
     container_name: superset_worker
     command: ["/app/docker/docker-bootstrap.sh", "worker"]
@@ -32,7 +38,9 @@ services:
     depends_on: *superset-depends-on
 
   superset-worker-beat:
-    env_file: docker/.env-non-dev
+    env_file:
+      - path: docker/.env
+        required: false
     image: *superset-image
     container_name: superset_worker_beat
     command: ["/app/docker/docker-bootstrap.sh", "beat"]
@@ -41,7 +49,7 @@ services:
     depends_on: *superset-depends-on
 
   # db:
-  #   env_file: docker/.env-non-dev
+  #   env_file: docker/.env
   #   image: postgres:14
   #   container_name: superset_db
   #   restart: unless-stopped
