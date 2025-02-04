@@ -59,7 +59,7 @@ services:
       CACHE_KEY_PREFIX: $$cap_redis_key_prefix
       DATABASE_URI: postgresql://$$cap_postgres_userpassword@$$cap_postgres_host:$$cap_postgres_port/superset_metastore
       # For init only:
-      ADMIN_EMAIL: admin@guardianconnector.net
+      ADMIN_EMAIL: $$cap_superset_admin_email
       ADMIN_PASSWORD: $$cap_gen_random_hex(64)
     caproverExtra:
       notExposeAsWebApp: 'true'
@@ -74,6 +74,10 @@ caproverOneClickApp:
       label: Superset Docker Image
       defaultValue: 'guardiancr.azurecr.io/superset-docker:4.1.1_20250203-1852'
       description: Check out the container registry for valid tags
+    - id: '$$cap_superset_admin_email'
+      label: Email for Superset admin user
+      validRegex: /^([^\s^\/])+$/
+      description: optional, used when multiple deployments share the same Redis URL
     - id: '$$cap_secret_key'
       label: Superset Secret Key
       defaultValue: '$$cap_gen_random_hex(100)'
