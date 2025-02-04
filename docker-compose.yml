@@ -1,4 +1,4 @@
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:4.1.1_20250203-1852
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:4.1.1_20250204-1000
 
 services:
   superset:
