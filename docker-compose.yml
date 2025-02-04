@@ -1,5 +1,4 @@
-x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:4.1.1_20250203-1852
-x-superset-depends-on: &superset-depends-on []
+x-superset-image: &superset-image guardiancr.azurecr.io/superset-docker:4.1.1_20250204-1032
 
 services:
   superset:
@@ -13,7 +12,9 @@ services:
     restart: unless-stopped
     ports:
       - "8088:8088"
-    depends_on: *superset-depends-on
+    depends_on:
+      redis:
+        condition: service_healthy
 
   superset-init:
     env_file:
@@ -23,7 +24,6 @@ services:
     container_name: superset_init
     command: ["/app/docker/docker-init.sh"]
     user: "root"
-    depends_on: *superset-depends-on
 
   superset-worker:
     env_file:
@@ -34,7 +34,9 @@ services:
     command: ["/app/docker/docker-bootstrap.sh", "worker"]
     user: "root"
     restart: unless-stopped
-    depends_on: *superset-depends-on
+    depends_on:
+      redis:
+        condition: service_healthy
 
   superset-worker-beat:
     env_file:
@@ -45,7 +47,9 @@ services:
     command: ["/app/docker/docker-bootstrap.sh", "beat"]
     user: "root"
     restart: unless-stopped
-    depends_on: *superset-depends-on
+    depends_on:
+      redis:
+        condition: service_healthy
 
   # db:
   #   env_file: docker/.env
@@ -59,6 +63,15 @@ services:
   #     - POSTGRES_USER=circleci
   #     - POSTGRES_PASSWORD=C1rcL3
 
+  redis:
+    image: redis:8.0-M03
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
 
 # volumes:
 #   db_home:
