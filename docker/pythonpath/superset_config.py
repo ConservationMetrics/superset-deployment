@@ -106,9 +106,9 @@ RESULTS_BACKEND = FileSystemCache("/app/superset_home/sqllab")
 
 
 class CeleryConfig(object):
-    broker_url = (REDIS_URL,)
+    broker_url = REDIS_URL
     imports = ("superset.sql_lab",)
-    result_backend = (REDIS_URL,)
+    result_backend = REDIS_URL
     worker_prefetch_multiplier = 1
     task_acks_late = False
     beat_schedule = {
