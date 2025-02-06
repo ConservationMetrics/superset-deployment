@@ -95,7 +95,6 @@ caproverOneClickApp:
       validRegex: /:/
       description: user:password, copy the values from /#/apps/details/postgres
 
-    # TODO: allow to run redis on local VM
     - id: '$$cap_redis_url'
       label: Redis URL
     - id: '$$cap_redis_key_prefix'
@@ -133,8 +132,16 @@ caproverOneClickApp:
         Superset is deploying and will be available within a minute.
 
         Next steps:
-        1. Login at http://$$cap_appname.$$cap_root_domain
-        2. Add the data warehouse as a new Data Store
+
+        1. On $$cap_appname-worker and $$cap_appname-init-and-beat, add the following lines to the
+        bottom of "Service Update Override" on the "App Config" page:
+        ```
+        HealthCheck:
+          Test: ["NONE"]
+        ```
+
+        2. Login at http://$$cap_appname.$$cap_root_domain
+        3. Add the data warehouse as a new Data Store
   displayName: Superset
   isOfficial: false  # Only if all images used here are official or from a trusted source.
   description: Apache Superset is a data exploration and data visualization platform.
