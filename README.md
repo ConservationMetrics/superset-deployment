@@ -38,8 +38,6 @@ Those dependencies are:
 
 We serve multiple clients and prefer to keep their deployments isolated from each other. Thus every client gets their own deployment: we create a separate VM (with its own web service, worker, initializer, etc), and PostgreSQL database for every client.
 
-At the moment, we share one Redis cache across all clients, with its keyspace partitioned by client (**superset-deployment**'s `CACHE_KEY_PREFIX` environment variable).
-
 ## A generic, deployable Docker image
 
 This repo roughly follows [how superset's own code base gets you started with Docker](https://github.com/apache/superset/tree/master/docker#production), but removes a lot of the distraction around local development, which is the focus of superset's documentation.
