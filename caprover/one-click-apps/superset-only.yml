@@ -72,7 +72,7 @@ caproverOneClickApp:
   variables:
     - id: '$$cap_superset_docker_image'
       label: Superset Docker Image
-      defaultValue: 'guardiancr.azurecr.io/superset-docker:4.1.1_20250203-1852'
+      defaultValue: 'guardiancr.azurecr.io/superset-docker:4.1.2_20250519-1315'
       description: Check out the container registry for valid tags
     - id: '$$cap_superset_admin_email'
       label: Email for Superset admin user
