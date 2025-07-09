@@ -213,7 +213,7 @@ class CustomAuthOAuthView(AuthOAuthView):
         return response
 
 
-USER_ROLE = get_env_variable("USER_ROLE", "Gamma")
+USER_ROLE = get_env_variable("USER_ROLE", "Alpha")
 USER_ROLE_PERMISSIONS = get_env_variable("USER_ROLE_PERMISSIONS", "")
 
 # Parse USER_ROLE_PERMISSIONS into a list of tuples
