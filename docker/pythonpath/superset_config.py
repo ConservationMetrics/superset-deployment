@@ -26,17 +26,15 @@ import os
 from datetime import timedelta
 from typing import Optional
 
-from flask_appbuilder.security.manager import AUTH_OAUTH
-from flask_appbuilder.security.views import AuthOAuthView
-from flask_appbuilder import expose
-from flask import flash, get_flashed_messages
-from flask_babel import get_locale
-from werkzeug.wrappers import Response as WerkzeugResponse
-
-from superset.security import SupersetSecurityManager
-
 from cachelib.file import FileSystemCache
 from celery.schedules import crontab
+from flask import flash, get_flashed_messages
+from flask_appbuilder import expose
+from flask_appbuilder.security.manager import AUTH_OAUTH
+from flask_appbuilder.security.views import AuthOAuthView
+from flask_babel import get_locale
+from superset.security import SupersetSecurityManager
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 logger = logging.getLogger()
 
@@ -49,7 +47,9 @@ def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
         if default is not None:
             return default
         else:
-            error_msg = "The environment variable {} was missing, abort...".format(var_name)
+            error_msg = "The environment variable {} was missing, abort...".format(
+                var_name
+            )
             raise EnvironmentError(error_msg)
 
 
@@ -110,7 +110,9 @@ class CeleryConfig(object):
     broker_transport_options = {"global_keyprefix": f"{CACHE_KEY_PREFIX}celery_"}
     imports = ("superset.sql_lab",)
     result_backend = REDIS_URL
-    result_backend_transport_options = {"global_keyprefix": f"{CACHE_KEY_PREFIX}celery_"}
+    result_backend_transport_options = {
+        "global_keyprefix": f"{CACHE_KEY_PREFIX}celery_"
+    }
     worker_prefetch_multiplier = 1
     task_acks_late = False
     beat_schedule = {
@@ -213,46 +215,10 @@ class CustomAuthOAuthView(AuthOAuthView):
         return response
 
 
-USER_ROLE = get_env_variable("USER_ROLE", "Gamma")
-USER_ROLE_PERMISSIONS = get_env_variable("USER_ROLE_PERMISSIONS", "")
-
-# Parse USER_ROLE_PERMISSIONS into a list of tuples
-if USER_ROLE_PERMISSIONS:
-    user_role_pvms = [
-        tuple(permission.strip("()").split(","))
-        for permission in USER_ROLE_PERMISSIONS.split("),(")
-    ]
-else:
-    user_role_pvms = []
-
-
 # https://superset.apache.org/docs/installation/configuring-superset/#custom-oauth2-configuration
 # We need to override the default security manager to use Auth0
 class CustomSecurityManager(SupersetSecurityManager):
     authoauthview = CustomAuthOAuthView
-
-    # https://github.com/apache/superset/issues/8864#issuecomment-1716449362
-    def __init__(self, appbuilder):
-        super().__init__(appbuilder)
-
-        if user_role_pvms:
-            # Find the user role
-            user_role = self.find_role(USER_ROLE)
-
-            logger.info(f"User role permissions to add to {user_role}: {user_role_pvms}")
-
-            if user_role:
-                for permission in user_role_pvms:
-                    if len(permission) == 2:
-                        action, model = permission
-                        pvm = self.find_permission_view_menu(action, model)
-                        if pvm is None:
-                            logger.error(f"Permission {permission} not found for role {user_role}")
-                        else:
-                            logger.info(f"Adding permission {pvm} to role {user_role}")
-                            self.add_permission_role(user_role, pvm)
-                    else:
-                        logger.warning("Permission is not a 2-tuple. Skipping...")
 
     def oauth_user_info(self, provider, response=None):
         logging.debug("Oauth2 provider: {0}.".format(provider))
@@ -284,6 +250,8 @@ class CustomSecurityManager(SupersetSecurityManager):
             }
 
 
+USER_ROLE = get_env_variable("USER_ROLE", "Alpha")
+
 # Uses standard Superset authentication and authorization by default.
 # To use Auth0 instead, set the three AUTH0_* variables:
 AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN", "")
@@ -310,9 +278,13 @@ if AUTH0_DOMAIN:
                     "scope": "openid profile email",
                 },
                 "access_token_method": "POST",
-                "access_token_params": {"client_id": get_env_variable("AUTH0_CLIENTID")},
+                "access_token_params": {
+                    "client_id": get_env_variable("AUTH0_CLIENTID")
+                },
                 "jwks_uri": f"https://{AUTH0_DOMAIN}/.well-known/jwks.json",
-                "access_token_headers": {"Authorization": "Basic Base64EncodedClientIdAndSecret"},
+                "access_token_headers": {
+                    "Authorization": "Basic Base64EncodedClientIdAndSecret"
+                },
                 "api_base_url": f"https://{AUTH0_DOMAIN}/oauth/",
                 "access_token_url": f"https://{AUTH0_DOMAIN}/oauth/token",
                 "authorize_url": f"https://{AUTH0_DOMAIN}/authorize",
@@ -349,6 +321,8 @@ try:
     import superset_config_docker
     from superset_config_docker import *  # noqa
 
-    logger.info(f"Loaded your Docker configuration at [{superset_config_docker.__file__}]")
+    logger.info(
+        f"Loaded your Docker configuration at [{superset_config_docker.__file__}]"
+    )
 except ImportError:
     logger.info("Using default Docker config...")

@@ -112,9 +112,21 @@ After it's done, you _may_ remove the `superset-init` service.
 
 We are using auth0 for authentication. For auth0 to work, you will need to provide the relevant environmental variables shown in `.env`, and configure your auth0 tentant according to your needs. By default, Superset account registration is enabled. Users may authenticate using auth0 based on their username, which should match their auth0 email address. Upon initial registration, the user will first see a message that their request to sign in was denied. That is because the user's account needs to be approved by an auth0 admin; once that's been done, they will be able to log in to Superset without issue.
 
-The starting Role of the user once approved is determined by a `USER_ROLE` environmental variable. Please see [this guide on Superset roles](https://superset.apache.org/docs/security/) to set the appropriate starting Role for your deployment. The fallback value is "Gamma" if the var is not set.
-
 Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/latest/security.html#authentication-methods) for authentication, which can only handle one type of authentication method and this means the standard authentication protocols are not accessible. Hence, for initial Superset db setup, we are using environmental variables to create an admin user whose username should match your auth0 email account.
+
+## User roles
+
+The starting Role of the user once approved is determined by a `USER_ROLE` environmental variable. Please see [this guide on Superset roles](https://superset.apache.org/docs/security/) to set the appropriate starting Role for your deployment. The fallback value is "Alpha" if the var is not set.
+
+Currently, we default to "Alpha" because it grants broad dashboard/chart access without the ability to view or edit database credentials or create new datasets, thus striking a balance between usability and security. "Admin privileges" are reserved for a small group, such as the very first Superset user. "Gamma" can be appropriate for strictly read-only users needing per-asset permissions. 
+
+For an exhaustive list of roles and permissions, see [STANDARD_ROLES.md](https://github.com/apache/superset/blob/master/RESOURCES/STANDARD_ROLES.md). Here's a truncated summary:
+
+| Role   | Access Level Summary |
+|--------|----------------------|
+| Admin  | Full access. Can manage users, roles, all data sources, dashboards, and credentials. Can grant/revoke access. |
+| Alpha  | Can access all data sources and dashboards, create/modify their own dashboards/slices. Cannot manage users or view credentials. |
+| Gamma  | Read-only by default. Can only see charts/dashboards from explicitly granted data sources. Cannot edit or add data sources. |
 
 ## Optional environmental variables
 
@@ -122,7 +134,6 @@ To allow for flexible customization, we have provided several optional environme
 
 * `APP_NAME`: if you want the page title for the dashboard to be something different than "Superset"
 * `APP_ICON`: to change the Superset logo shown on the top left of the window.
-* `USER_ROLE_PERMISSIONS`: if you want to assign additional permissions to the Starting role of a user once approved as defined in `USER_ROLE`. Note that setting these means that any changes made to the permissions for that user role (e.g. in the Superset UI) will be overwritten upon deployment of the application.
 * `FRAME_ANCESTORS`: to provide a comma separated list of permissible frame ancestors for your CSP.
 * `MAPBOX_API_KEY`
 
