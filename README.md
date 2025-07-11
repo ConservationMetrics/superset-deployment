@@ -112,9 +112,13 @@ After it's done, you _may_ remove the `superset-init` service.
 
 We are using auth0 for authentication. For auth0 to work, you will need to provide the relevant environmental variables shown in `.env`, and configure your auth0 tentant according to your needs. By default, Superset account registration is enabled. Users may authenticate using auth0 based on their username, which should match their auth0 email address. Upon initial registration, the user will first see a message that their request to sign in was denied. That is because the user's account needs to be approved by an auth0 admin; once that's been done, they will be able to log in to Superset without issue.
 
+Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/latest/security.html#authentication-methods) for authentication, which can only handle one type of authentication method and this means the standard authentication protocols are not accessible. Hence, for initial Superset db setup, we are using environmental variables to create an admin user whose username should match your auth0 email account.
+
+## User roles
+
 The starting Role of the user once approved is determined by a `USER_ROLE` environmental variable. Please see [this guide on Superset roles](https://superset.apache.org/docs/security/) to set the appropriate starting Role for your deployment. The fallback value is "Alpha" if the var is not set.
 
-Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/latest/security.html#authentication-methods) for authentication, which can only handle one type of authentication method and this means the standard authentication protocols are not accessible. Hence, for initial Superset db setup, we are using environmental variables to create an admin user whose username should match your auth0 email account.
+Currently, we default to "Alpha" because it grants broad dashboard/chart access without the ability to view or edit database credentials or create new datasets, thus striking a balance between usability and security. "Admin privileges" are reserved for a small group, such as the very first Superset user. "Gamma" can be appropriate for strictly read-only users needing per-asset permissions. 
 
 ## Optional environmental variables
 
