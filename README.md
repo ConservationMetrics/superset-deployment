@@ -120,6 +120,14 @@ The starting Role of the user once approved is determined by a `USER_ROLE` envir
 
 Currently, we default to "Alpha" because it grants broad dashboard/chart access without the ability to view or edit database credentials or create new datasets, thus striking a balance between usability and security. "Admin privileges" are reserved for a small group, such as the very first Superset user. "Gamma" can be appropriate for strictly read-only users needing per-asset permissions. 
 
+For an exhaustive list of roles and permissions, see [STANDARD_ROLES.md](https://github.com/apache/superset/blob/master/RESOURCES/STANDARD_ROLES.md). Here's a truncated summary:
+
+| Role   | Access Level Summary |
+|--------|----------------------|
+| Admin  | Full access. Can manage users, roles, all data sources, dashboards, and credentials. Can grant/revoke access. |
+| Alpha  | Can access all data sources and dashboards, create/modify their own dashboards/slices. Cannot manage users or view credentials. |
+| Gamma  | Read-only by default. Can only see charts/dashboards from explicitly granted data sources. Cannot edit or add data sources. |
+
 ## Optional environmental variables
 
 To allow for flexible customization, we have provided several optional environmental variables (commented out in `.env.sample`):
