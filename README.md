@@ -110,9 +110,9 @@ After it's done, you _may_ remove the `superset-init` service.
 
 ## Authentication
 
-We are using auth0 for authentication. For auth0 to work, you will need to provide the relevant environmental variables shown in `.env`, and configure your auth0 tentant according to your needs. By default, Superset account registration is enabled. Users may authenticate using auth0 based on their username, which should match their auth0 email address. Upon initial registration, the user will first see a message that their request to sign in was denied. That is because the user's account needs to be approved by an auth0 admin; once that's been done, they will be able to log in to Superset without issue.
+We are using auth0 for authentication. For auth0 to work, you will need to provide the relevant environmental variables shown in `.env`, and configure your auth0 tenant according to your needs. By default, Superset account registration is enabled. Users may authenticate using auth0 based on their username, which should match their auth0 email address. Upon initial registration, the user will first see a message that their request to sign in was denied. That is because the user's account needs to be approved by an auth0 admin; once that's been done, they will be able to log in to Superset without issue.
 
-Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/latest/security.html#authentication-methods) for authentication, which can only handle one type of authentication method and this means the standard authentication protocols are not accessible. Hence, for initial Superset db setup, we are using environmental variables to create an admin user whose username should match your auth0 email account.
+Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/latest/security.html#authentication-methods) for authentication, which can only handle one type of authentication method and this means the standard authentication protocols are not accessible. Hence, for initial Superset db setup, we are using the environmental variable `ADMIN_EMAIL` to create an admin user whose username (as an email address) should match your auth0 email account. (If you are using auth0, `ADMIN_PASSWORD` is not used.)
 
 ## User roles
 
