@@ -53,7 +53,7 @@ echo_step "1" "Complete" "Applying DB migrations"
 # Create an admin user
 echo_step "2" "Starting" "Setting up admin user"
 superset fab create-admin \
-              --username admin \
+              --username $ADMIN_EMAIL \
               --firstname Warehouse \
               --lastname Admin \
               --email $ADMIN_EMAIL \
