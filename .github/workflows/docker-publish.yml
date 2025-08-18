@@ -1,0 +1,61 @@
+name: Publish to DockerHub
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  release:
+    types: [created]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ConservationMetrics/superset-deployment
+      - name: Extract Superset version from Dockerfile
+        id: version
+        run: |
+          SS_VERSION=$(grep "FROM apache/superset:" Dockerfile | cut -d':' -f2)
+          echo "ss_version=${SS_VERSION}" >> $GITHUB_OUTPUT
+      - name: Generate timestamp
+        id: timestamp
+        run: |
+          BUILD=$(date +"%Y%m%d-%H%M")
+          echo "build=${BUILD}" >> $GITHUB_OUTPUT
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Push for main branch or same-repo PRs (security measure for external PRs)
+      # PR builds: pr-123-4.1.2_20250115-1234 (for testing)
+      # Main branch builds: both timestamped (4.1.2_20250115-1234) and latest tags
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+          tags: |
+            ${{ github.event_name == 'pull_request' && format('communityfirst/superset-deployment:pr-{0}-{1}_{2}', github.event.number, steps.version.outputs.ss_version, steps.timestamp.outputs.build) || '' }}
+            ${{ github.ref == 'refs/heads/main' && format('communityfirst/superset-deployment:{0}_{1}', steps.version.outputs.ss_version, steps.timestamp.outputs.build) || '' }}
+            ${{ github.ref == 'refs/heads/main' && 'communityfirst/superset-deployment:latest' || '' }}
+      - name: Docker Hub Description
+        if: github.event_name == 'release'
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: communityfirst/superset-deployment
+          short-description: 'Deploy Apache Superset via Docker Compose or CapRover.'
