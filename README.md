@@ -69,6 +69,8 @@ docker push ${REGISTRY}/superset-deployment:${OUR_TAG}
 ### Using GitHub Actions to build and push the image
 
 The [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) file is used to build and push the image to the `communityfirst` Docker Hub container registry.
+
+The workflow builds an image for PRs for testing purposes, as well as a `latest` and a timestamped image for the main branch.
  
 ### Running locally
 
