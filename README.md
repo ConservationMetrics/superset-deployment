@@ -61,10 +61,17 @@ Now you can build the image, and might as well push it to the container registry
 SS_VERSION=4.1.2
 BUILD=$(date +"%Y%m%d-%H%M")
 OUR_TAG="${SS_VERSION}_${BUILD}"
-docker build -t guardiancr.azurecr.io/superset-docker:${OUR_TAG} .
-docker push guardiancr.azurecr.io/superset-docker:${OUR_TAG}
+REGISTRY=your-registry-name
+docker build -t ${REGISTRY}/superset-deployment:${OUR_TAG} .
+docker push ${REGISTRY}/superset-deployment:${OUR_TAG}
 ```
 
+### Using GitHub Actions to build and push the image
+
+The [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) file is used to build and push the image to the `communityfirst` Docker Hub container registry.
+
+The workflow builds an image for PRs for testing purposes, as well as a `latest` and a timestamped image for the main branch.
+ 
 ### Running locally
 
 Running locally is not the point here, but sometimes it's nice to sanity check something in a
