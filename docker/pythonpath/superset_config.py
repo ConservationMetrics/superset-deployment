@@ -195,10 +195,29 @@ def translate(message):
 
 # Extend the default AuthOAuthView to override the default message when the user is not authorized
 class CustomAuthOAuthView(AuthOAuthView):
+    # TODO: Exposing the custom login method succesfully flashes the message as desired, but the user is not redirected to auth0 when they press "Sign in with auth0". Instead they are redirected to /loginauth0, which is not a valid route.
     # @expose("/login")
     # def login(self) -> WerkzeugResponse:
     #     flash(translate("Welcome! Please sign up or log in by pressing 'Sign in with auth0' to access the application"), "info")
     #     return super().login()
+
+    # Here we try to rewrite the actual URL in the Auth0AuthView login page to redirect to Auth0, which works, except that the user is redirected back to the login page upon successful authentication with auth0, and sees the flash message "You are not yet authorized to access this application.", instead of logging into the application as expected.
+    @expose("/login")
+    def login(self) -> WerkzeugResponse:
+        flash(translate("Welcome! Please sign up or log in by pressing 'Sign in with auth0' to access the application"), "info")
+        response = super().login()
+
+        auth0_domain = os.getenv('AUTH0_DOMAIN')
+        auth0_client_id = os.getenv('AUTH0_CLIENTID')
+        redirect_uri = url_for('CustomAuthOAuthView.oauth_authorized', provider='auth0', _external=True)
+        auth0_url = f"https://{auth0_domain}/authorize?response_type=code&client_id={auth0_client_id}&redirect_uri={redirect_uri}&scope=openid+profile+email"
+
+        response = response.replace(
+            'window.location.href = baseLoginUrl + provider + next;',
+            f'window.location.href = "{auth0_url}";'
+        )
+
+        return response
 
     @expose("/oauth-authorized/<provider>")
     def oauth_authorized(self, provider: str) -> WerkzeugResponse:
