@@ -52,13 +52,13 @@ First you must commit to a specific release version of Superset, and
 
 - update that version in [`Dockerfile`](Dockerfile)
 - port any new changes to `superset_config.py` from that same tag upstream. This is manual and will require some diffing, something like:
-  - cd ~/dev/superset ; git checkout 4.1.2
+  - cd ~/dev/superset ; git checkout 4.1.4
   - diff ~/dev/superset/docker/pythonpath_dev/superset_config.py ~/dev/superset-deployment/docker/pythonpath/superset_config.py
 
 Now you can build the image, and might as well push it to the container registry too:
 
 ```bash
-SS_VERSION=4.1.2
+SS_VERSION=4.1.4
 BUILD=$(date +"%Y%m%d-%H%M")
 OUR_TAG="${SS_VERSION}_${BUILD}"
 REGISTRY=your-registry-name
