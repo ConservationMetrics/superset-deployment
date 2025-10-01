@@ -19,6 +19,7 @@ RUN pip install --no-cache-dir -r /app/docker/requirements-addons.txt
 COPY --chown=superset ./docker/pythonpath/superset_config.py /app/pythonpath/
 ENV PYTHONPATH="${PYTHONPATH}:/app/pythonpath/"
 
+ENV SCARF_ANALYTICS=false
 ENV FLASK_ENV=production
 ENV SUPERSET_ENV=production
 
