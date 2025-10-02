@@ -82,8 +82,9 @@ more comfortable environment.
 2. Put environment variables in a new file called `docker/.env`
    - you may first `cp docker/.env-sample docker/.env`
    - make sure `DATABASE_URI` and `REDIS_URL` point to non-production services (assuming you want that)
-3. `docker compose up`. Note that `superset-init` takes a few minutes to complete (it will terminate once done), and the rest of the app is unusable/buggy until then.
-4. Open a browser to [`localhost:8088`](http://localhost:8088)
+3. If you want to specify a specific Docker image or tag, set the `SupersetImage=...` env var before the next step. Otherwise it will run the latest CI build from the `main` branch.
+4. `docker compose up`. Note that `superset-init` takes a few minutes to complete (it will terminate once done), and the rest of the app is unusable/buggy until then.
+5. Open a browser to [`localhost:8088`](http://localhost:8088)
 
 ### Running in Production
 
