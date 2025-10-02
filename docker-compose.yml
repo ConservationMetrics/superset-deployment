@@ -1,4 +1,5 @@
-x-superset-image: &superset-image communityfirst/superset-deployment:4.1.2_20250519-1315
+# Use a pre-built image from env var $SupersetImage, it set. Otherwise use :latest as default.
+x-superset-image: &superset-image ${SupersetImage:-communityfirst/superset-deployment:latest}
 
 services:
   superset:

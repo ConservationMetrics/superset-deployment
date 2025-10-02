@@ -38,8 +38,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       # Push for main branch or same-repo PRs (security measure for external PRs)
-      # PR builds: pr-123-4.1.2_20250115-1234 (for testing)
-      # Main branch builds: both timestamped (4.1.2_20250115-1234) and latest tags
+      # * One PR builds: pr-123-x.y.z_202Y0115-1234 (for testing)
+      # * Two main branch builds: both timestamped (x.y.z_202Y0115-1234) and latest tags
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
