@@ -7,8 +7,8 @@
 #
 FROM apache/superset:6.0.0
 
-COPY --chown=superset ./docker/docker-bootstrap.sh /app/docker/
-COPY --chown=superset ./docker/docker-init.sh /app/docker/
+COPY --chown=superset --chmod=0755 ./docker/docker-bootstrap.sh /app/docker/
+COPY --chown=superset --chmod=0755 ./docker/docker-init.sh /app/docker/
 # COPY --chown=superset ./docker/docker-ci.sh /app/docker/
 
 # Specify your own python libraries in requirements-addons.txt
@@ -22,5 +22,3 @@ ENV PYTHONPATH="${PYTHONPATH}:/app/pythonpath/"
 ENV SCARF_ANALYTICS=false
 ENV FLASK_ENV=production
 ENV SUPERSET_ENV=production
-
-RUN chmod a+x /app/docker/*.sh
