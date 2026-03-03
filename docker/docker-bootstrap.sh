@@ -27,16 +27,19 @@ if [ "$CYPRESS_CONFIG" == "true" ]; then
     export SUPERSET_TESTENV=true
     export SUPERSET__SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://superset:superset@db:5432/superset
 fi
-if [ "${SUPERSET_INSTALL_REQUIREMENTS_ON_STARTUP}" = "true" ]; then
-  . /app/.venv/bin/activate
-  if [ -f "${REQUIREMENTS_LOCAL}" ]; then
-    echo "Installing local overrides at ${REQUIREMENTS_LOCAL}"
-    uv pip install --no-cache-dir -r "${REQUIREMENTS_LOCAL}"
-  fi
-  if [ -f "${REQUIREMENTS_ADDONS}" ]; then
-    echo "Installing additional dependencies at ${REQUIREMENTS_ADDONS}"
-    uv pip install --no-cache-dir -r "${REQUIREMENTS_ADDONS}"
-  fi
+#
+# Make sure we have dev requirements installed
+#
+if [ -f "${REQUIREMENTS_LOCAL}" ]; then
+  echo "Installing local overrides at ${REQUIREMENTS_LOCAL}"
+  pip install -r "${REQUIREMENTS_LOCAL}"
+fi
+#
+# Install any additional pip dependencies for your build
+#
+if [ -f "${REQUIREMENTS_ADDONS}" ]; then
+  echo "Installing additional dependencies at ${REQUIREMENTS_ADDONS}"
+  pip install -r "${REQUIREMENTS_ADDONS}"
 fi
 
 # To run the following redis connection checks, you first must install one of
