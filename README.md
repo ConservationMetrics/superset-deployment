@@ -58,7 +58,7 @@ First you must commit to a specific release version of Superset, and
 Now you can build the image, and might as well push it to the container registry too:
 
 ```bash
-SS_VERSION=4.1.4
+SS_VERSION=6.0.0
 BUILD=$(date +"%Y%m%d-%H%M")
 OUR_TAG="${SS_VERSION}_${BUILD}"
 REGISTRY=your-registry-name
