@@ -58,10 +58,10 @@ def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
 ENABLE_UI_THEME_ADMINISTRATION = True
 
 APP_NAME = get_env_variable("APP_NAME", "Superset")
-LOGO_URL = get_env_variable("LOGO_URL", "/static/assets/images/superset-logo-horiz.png")
+LOGO_URL = get_env_variable("LOGO_URL")
 
 # For backward compatibility
-APP_ICON = get_env_variable("APP_ICON", "/static/assets/images/superset-logo-horiz.png")
+APP_ICON = get_env_variable("APP_ICON")
 
 THEME_DEFAULT = {
     "token": {"brandAppName": APP_NAME, "brandLogoUrl": LOGO_URL or APP_ICON}
