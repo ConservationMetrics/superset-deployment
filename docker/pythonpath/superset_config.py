@@ -53,21 +53,16 @@ def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
             raise EnvironmentError(error_msg)
 
 
-# Enable UI-based theme administration for admins
-# https://superset.apache.org/admin-docs/configuration/theming/
-ENABLE_UI_THEME_ADMINISTRATION = True
-
 APP_NAME = get_env_variable("APP_NAME", "Superset")
 LOGO_URL = get_env_variable("LOGO_URL")
 
 # For backward compatibility
 APP_ICON = get_env_variable("APP_ICON")
 
+# https://superset.apache.org/admin-docs/configuration/theming/
 THEME_DEFAULT = {
     "token": {"brandAppName": APP_NAME, "brandLogoUrl": LOGO_URL or APP_ICON}
 }
-
-THEME_DARK = {"token": {"brandAppName": APP_NAME, "brandLogoUrl": LOGO_URL or APP_ICON}}
 
 SECRET_KEY = get_env_variable("SECRET_KEY")
 
