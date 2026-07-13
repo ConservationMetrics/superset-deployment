@@ -5,7 +5,7 @@
 #
 # If you need to run locally, see the apache/superset Git repo instead.
 #
-FROM apache/superset:6.0.0
+FROM apache/superset:6.1.0
 
 COPY --chown=superset --chmod=0755 ./docker/docker-bootstrap.sh /app/docker/
 COPY --chown=superset --chmod=0755 ./docker/docker-init.sh /app/docker/
@@ -13,7 +13,7 @@ COPY --chown=superset --chmod=0755 ./docker/docker-init.sh /app/docker/
 
 # Specify your own python libraries in requirements-addons.txt
 # Install into venv as root using uv (see docs):
-# https://superset.apache.org/user-docs/6.0.0/installation/docker-builds/#building-your-own-production-docker-image 
+# https://superset.apache.org/user-docs/6.1.0/installation/docker-builds/#building-your-own-production-docker-image
 COPY --chown=superset ./docker/requirements-addons.txt /app/docker/
 USER root
 RUN . /app/.venv/bin/activate \
