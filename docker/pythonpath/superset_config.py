@@ -229,7 +229,7 @@ class CustomSecurityManager(SupersetSecurityManager):
                 return
             me = res.json()
             # Uncomment the following line to inspect the returned user data
-            # logger.debug(" user_data: %s", me)
+            logger.debug(" user_data: %s", me)
 
             # Auth0 returns a full name, but Superset expects first/last name
             # We'll split the full name into two parts, but note that this is
