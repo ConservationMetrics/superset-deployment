@@ -248,6 +248,15 @@ class CustomSecurityManager(SupersetSecurityManager):
             }
 
 
+# https://superset.apache.org/user-docs/6.0.0/configuration/configuring-superset/#mapping-oauth-groups-to-superset-roles
+AUTH_ROLES_MAPPING = {
+    "Admin": ["Admin"],
+    "Member": ["Alpha"],
+    "Guest": ["Gamma"],
+    "SignedIn": ["Gamma"],
+}
+
+# Fallback user role if no mapping is found.
 USER_ROLE = get_env_variable("USER_ROLE", "Alpha")
 
 # Uses standard Superset authentication and authorization by default.
