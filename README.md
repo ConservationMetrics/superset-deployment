@@ -141,7 +141,6 @@ For an exhaustive list of roles and permissions, see [STANDARD_ROLES.md](https:/
 To allow for flexible customization, we have provided several optional environmental variables (commented out in `.env.sample`):
 
 * `APP_NAME`: if you want the page title for the dashboard to be something different than "Superset"
-* `APP_ICON`: to change the Superset logo shown on the top left of the window.
 * `FRAME_ANCESTORS`: to provide a comma separated list of permissible frame ancestors for your CSP.
 * `MAPBOX_API_KEY`
 

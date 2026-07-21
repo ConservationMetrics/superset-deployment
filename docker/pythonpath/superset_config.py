@@ -55,8 +55,6 @@ def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
 
 APP_NAME = get_env_variable("APP_NAME", "Superset")
 
-APP_ICON = get_env_variable("APP_ICON", "/static/assets/images/superset-logo-horiz.png")
-
 SECRET_KEY = get_env_variable("SECRET_KEY")
 
 # The SQLAlchemy connection string.
