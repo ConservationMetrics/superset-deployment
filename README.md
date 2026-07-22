@@ -124,9 +124,16 @@ Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/late
 
 ## User roles
 
-The starting Role of the user once approved is determined by a `USER_ROLE` environmental variable. Please see [this guide on Superset roles](https://superset.apache.org/docs/security/) to set the appropriate starting Role for your deployment. The fallback value is "Alpha" if the var is not set.
+Superset roles are synced from Auth0 on every login via `AUTH_ROLES_MAPPING`:
 
-Currently, we default to "Alpha" because it grants broad dashboard/chart access without the ability to view or edit database credentials or create new datasets, thus striking a balance between usability and security. "Admin privileges" are reserved for a small group, such as the very first Superset user. "Gamma" can be appropriate for strictly read-only users needing per-asset permissions. 
+| Auth0 role | Superset role |
+|------------|---------------|
+| Admin      | Admin         |
+| Member     | Alpha         |
+| Guest      | Gamma         |
+| SignedIn   | Public        |
+
+Users with no Auth0 role fall back to Public. Assign Auth0 roles in the Auth0 dashboard (or via an Action that sets `urn:gc:roles`).
 
 For an exhaustive list of roles and permissions, see [STANDARD_ROLES.md](https://github.com/apache/superset/blob/master/RESOURCES/STANDARD_ROLES.md). Here's a truncated summary:
 

@@ -243,6 +243,14 @@ class CustomSecurityManager(SupersetSecurityManager):
                 "role_keys": me.get("urn.gc.roles", []),
             }
 
+    def _oauth_calculate_user_roles(self, userinfo):
+        # Auth0 role_keys only — do not union AUTH_USER_REGISTRATION_ROLE.
+        roles = list(self.get_roles_from_keys(userinfo.get("role_keys") or []))
+        if roles:
+            return roles
+        public = self.find_role("Public")
+        return [public] if public else []
+
 
 # https://superset.apache.org/user-docs/6.0.0/configuration/configuring-superset/#mapping-oauth-groups-to-superset-roles
 AUTH_ROLES_SYNC_AT_LOGIN = True
@@ -254,9 +262,6 @@ AUTH_ROLES_MAPPING = {
     "SignedIn": ["Public"],
 }
 
-# Fallback user role if no mapping is found.
-USER_ROLE = get_env_variable("USER_ROLE", "Alpha")
-
 # Uses standard Superset authentication and authorization by default.
 # To use Auth0 instead, set the three AUTH0_* variables:
 AUTH0_DOMAIN = get_env_variable("AUTH0_DOMAIN", "")
@@ -265,7 +270,7 @@ if AUTH0_DOMAIN:
     AUTH_TYPE = AUTH_OAUTH
 
     AUTH_USER_REGISTRATION = True
-    AUTH_USER_REGISTRATION_ROLE = USER_ROLE
+    AUTH_USER_REGISTRATION_ROLE = "Public"
 
     OAUTH_PROVIDERS = [
         {
