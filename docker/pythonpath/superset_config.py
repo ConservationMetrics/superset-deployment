@@ -232,22 +232,23 @@ class CustomSecurityManager(SupersetSecurityManager):
                 return
             me = res.json()
 
-            res = (
-                self.appbuilder.sm.oauth_remotes[provider]
-                .get(f"https://{AUTH0_DOMAIN}/api/v2/users/{me['sub']}/roles")
-                .json()
+            # Uncomment the following line to inspect the returned user data
+            logger.debug(" user_data: %s", me)
+
+            res = self.appbuilder.sm.oauth_remotes[provider].get(
+                f"https://{AUTH0_DOMAIN}/api/v2/users/{me['sub']}/roles"
             )
             if res.raw.status != 200:
-                logger.error("Failed to obtain user info.")
+                logger.error(
+                    "Failed to obtain user roles: status=%s body=%s",
+                    res.raw.status,
+                    res.text,
+                )
                 return
             roles = res.json()
             logger.debug(" roles: %s", roles)
 
             role_keys = [role["name"] for role in roles]
-            # TODO: Add logic to fetch roles from auth0 https://auth0.com/docs/api/management/v2/users/get-user-roles
-
-            # Uncomment the following line to inspect the returned user data
-            logger.debug(" user_data: %s", me)
 
             return {
                 "username": me["email"],
