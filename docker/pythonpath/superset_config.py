@@ -235,27 +235,12 @@ class CustomSecurityManager(SupersetSecurityManager):
             # Uncomment the following line to inspect the returned user data
             logger.debug(" user_data: %s", me)
 
-            res = self.appbuilder.sm.oauth_remotes[provider].get(
-                f"https://{AUTH0_DOMAIN}/api/v2/users/{me['sub']}/roles"
-            )
-            if res.raw.status != 200:
-                logger.error(
-                    "Failed to obtain user roles: status=%s body=%s",
-                    res.raw.status,
-                    res.text,
-                )
-                return
-            roles = res.json()
-            logger.debug(" roles: %s", roles)
-
-            role_keys = [role["name"] for role in roles]
-
             return {
                 "username": me["email"],
                 "email": me["email"],
                 "first_name": me["given_name"],
                 "last_name": me["family_name"],
-                "role_keys": role_keys,
+                "role_keys": me.get("urn:gc:roles", []),
             }
 
 
