@@ -38,6 +38,7 @@ from werkzeug.wrappers import Response as WerkzeugResponse
 
 logger = logging.getLogger()
 
+# Uncomment to enable debug logging
 LOG_LEVEL = logging.DEBUG
 
 
@@ -230,23 +231,30 @@ class CustomSecurityManager(SupersetSecurityManager):
                 logger.error("Failed to obtain user info.")
                 return
             me = res.json()
+
+            res = (
+                self.appbuilder.sm.oauth_remotes[provider]
+                .get(f"https://{AUTH0_DOMAIN}/api/v2/users/{me['sub']}/roles")
+                .json()
+            )
+            if res.raw.status != 200:
+                logger.error("Failed to obtain user info.")
+                return
+            roles = res.json()
+            logger.debug(" roles: %s", roles)
+
+            role_keys = [role["name"] for role in roles]
+            # TODO: Add logic to fetch roles from auth0 https://auth0.com/docs/api/management/v2/users/get-user-roles
+
             # Uncomment the following line to inspect the returned user data
             logger.debug(" user_data: %s", me)
-
-            # Auth0 returns a full name, but Superset expects first/last name
-            # We'll split the full name into two parts, but note that this is
-            # not robust since some people have multiple first or last names
-            # and naming conventions across the world vary (e.g. some cultures
-            # put the last name first).
-            name_parts = me["name"].rsplit(maxsplit=1)
-            first_name = name_parts[0]
-            last_name = name_parts[1] if len(name_parts) > 1 else ""
 
             return {
                 "username": me["email"],
                 "email": me["email"],
-                "first_name": first_name,
-                "last_name": last_name,
+                "first_name": me["given_name"],
+                "last_name": me["family_name"],
+                "role_keys": role_keys,
             }
 
 
