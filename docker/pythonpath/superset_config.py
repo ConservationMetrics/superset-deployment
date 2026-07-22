@@ -38,6 +38,8 @@ from werkzeug.wrappers import Response as WerkzeugResponse
 
 logger = logging.getLogger()
 
+LOG_LEVEL = logging.DEBUG
+
 
 def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
     """Get the environment variable or raise exception."""
@@ -219,7 +221,7 @@ class CustomSecurityManager(SupersetSecurityManager):
     authoauthview = CustomAuthOAuthView
 
     def oauth_user_info(self, provider, response=None):
-        logging.debug("Oauth2 provider: {0}.".format(provider))
+        logger.debug("Oauth2 provider: {0}.".format(provider))
         if provider == "auth0":
             res = self.appbuilder.sm.oauth_remotes[provider].get(
                 f"https://{AUTH0_DOMAIN}/userinfo"
@@ -229,7 +231,7 @@ class CustomSecurityManager(SupersetSecurityManager):
                 return
             me = res.json()
             # Uncomment the following line to inspect the returned user data
-            logger.info(" user_data: %s", me)
+            logger.debug(" user_data: %s", me)
 
             # Auth0 returns a full name, but Superset expects first/last name
             # We'll split the full name into two parts, but note that this is
@@ -249,11 +251,13 @@ class CustomSecurityManager(SupersetSecurityManager):
 
 
 # https://superset.apache.org/user-docs/6.0.0/configuration/configuring-superset/#mapping-oauth-groups-to-superset-roles
+AUTH_ROLES_SYNC_AT_LOGIN = True
+
 AUTH_ROLES_MAPPING = {
     "Admin": ["Admin"],
     "Member": ["Alpha"],
     "Guest": ["Gamma"],
-    "SignedIn": ["Gamma"],
+    "SignedIn": ["Public"],
 }
 
 # Fallback user role if no mapping is found.
