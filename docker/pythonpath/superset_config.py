@@ -240,7 +240,7 @@ class CustomSecurityManager(SupersetSecurityManager):
                 "email": me["email"],
                 "first_name": me["given_name"],
                 "last_name": me["family_name"],
-                "role_keys": me.get("urn:gc:roles", []),
+                "role_keys": me.get("urn.gc.roles", []),
             }
 
 
