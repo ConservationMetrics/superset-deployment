@@ -39,7 +39,7 @@ from werkzeug.wrappers import Response as WerkzeugResponse
 logger = logging.getLogger()
 
 # Uncomment to enable debug logging
-LOG_LEVEL = logging.DEBUG
+# LOG_LEVEL = logging.DEBUG
 
 
 def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
@@ -233,7 +233,7 @@ class CustomSecurityManager(SupersetSecurityManager):
             me = res.json()
 
             # Uncomment the following line to inspect the returned user data
-            logger.debug(" user_data: %s", me)
+            # logger.debug(" user_data: %s", me)
 
             return {
                 "username": me["email"],
@@ -244,7 +244,7 @@ class CustomSecurityManager(SupersetSecurityManager):
             }
 
     def _oauth_calculate_user_roles(self, userinfo):
-        # Auth0 role_keys only — do not union AUTH_USER_REGISTRATION_ROLE.
+        # Auth0 role_keys only; do not union AUTH_USER_REGISTRATION_ROLE.
         roles = list(self.get_roles_from_keys(userinfo.get("role_keys") or []))
         if roles:
             return roles
@@ -254,7 +254,6 @@ class CustomSecurityManager(SupersetSecurityManager):
 
 # https://superset.apache.org/user-docs/6.0.0/configuration/configuring-superset/#mapping-oauth-groups-to-superset-roles
 AUTH_ROLES_SYNC_AT_LOGIN = True
-
 AUTH_ROLES_MAPPING = {
     "Admin": ["Admin"],
     "Member": ["Alpha"],
