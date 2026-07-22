@@ -124,6 +124,14 @@ Superset uses [Flask-AppBuilder](https://flask-appbuilder.readthedocs.io/en/late
 
 ## User roles
 
+For an exhaustive list of roles and permissions, see [STANDARD_ROLES.md](https://github.com/apache/superset/blob/master/RESOURCES/STANDARD_ROLES.md). Here's a truncated summary:
+
+| Role   | Access Level Summary |
+|--------|----------------------|
+| Admin  | Full access. Can manage users, roles, all data sources, dashboards, and credentials. Can grant/revoke access. |
+| Alpha  | Can access all data sources and dashboards, create/modify their own dashboards/slices. Cannot manage users or view credentials. |
+| Gamma  | Read-only by default. Can only see charts/dashboards from explicitly granted data sources. Cannot edit or add data sources. |
+
 Superset roles are synced from Auth0 on every login via `AUTH_ROLES_MAPPING`:
 
 | Auth0 role | Superset role |
@@ -133,15 +141,22 @@ Superset roles are synced from Auth0 on every login via `AUTH_ROLES_MAPPING`:
 | Guest      | Gamma         |
 | SignedIn   | Public        |
 
-Users with no Auth0 role fall back to Public. Assign Auth0 roles in the Auth0 dashboard (or via an Action that sets `urn:gc:roles`).
+Users with no Auth0 role fall back to Public. Assign Auth0 roles in the Auth0 dashboard.
 
-For an exhaustive list of roles and permissions, see [STANDARD_ROLES.md](https://github.com/apache/superset/blob/master/RESOURCES/STANDARD_ROLES.md). Here's a truncated summary:
+### Auth0 Post-Login Action
 
-| Role   | Access Level Summary |
-|--------|----------------------|
-| Admin  | Full access. Can manage users, roles, all data sources, dashboards, and credentials. Can grant/revoke access. |
-| Alpha  | Can access all data sources and dashboards, create/modify their own dashboards/slices. Cannot manage users or view credentials. |
-| Gamma  | Read-only by default. Can only see charts/dashboards from explicitly granted data sources. Cannot edit or add data sources. |
+Superset reads roles from the `urn.gc.roles` claim on `/userinfo` (Auth0 rewrites `urn:gc:roles` → `urn.gc.roles`). Add this **Login / Post Login** Action in Auth0 (Actions → Library → Build Custom), then attach it to the Login flow:
+
+```javascript
+/**
+ * Handler that will be called during the execution of a PostLogin flow.
+ */
+exports.onExecutePostLogin = async (event, api) => {
+  if (event.authorization) {
+    api.idToken.setCustomClaim("urn:gc:roles", event.authorization.roles);
+  }
+};
+```
 
 ## Optional environmental variables
 
