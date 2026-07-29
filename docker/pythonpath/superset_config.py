@@ -24,7 +24,6 @@ import json
 import logging
 import os
 from datetime import timedelta
-from typing import Optional
 
 from cachelib.file import FileSystemCache
 from celery.schedules import crontab
@@ -42,7 +41,7 @@ logger = logging.getLogger()
 # LOG_LEVEL = logging.DEBUG
 
 
-def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
+def get_env_variable(var_name: str, default: str | None = None) -> str:
     """Get the environment variable or raise exception."""
     try:
         return os.environ[var_name]
@@ -50,10 +49,8 @@ def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
         if default is not None:
             return default
         else:
-            error_msg = "The environment variable {} was missing, abort...".format(
-                var_name
-            )
-            raise EnvironmentError(error_msg)
+            error_msg = f"The environment variable {var_name} was missing, abort..."
+            raise OSError(error_msg)
 
 
 APP_NAME = get_env_variable("APP_NAME", "Superset")
@@ -106,7 +103,7 @@ CELERY_BEAT_SCHEDULER_EXPIRES = timedelta(weeks=1)
 RESULTS_BACKEND = FileSystemCache("/app/superset_home/sqllab")
 
 
-class CeleryConfig(object):
+class CeleryConfig:
     broker_url = REDIS_URL
     broker_transport_options = {"global_keyprefix": f"{CACHE_KEY_PREFIX}celery_"}
     imports = ("superset.sql_lab",)
@@ -222,7 +219,7 @@ class CustomSecurityManager(SupersetSecurityManager):
     authoauthview = CustomAuthOAuthView
 
     def oauth_user_info(self, provider, response=None):
-        logger.debug("Oauth2 provider: {0}.".format(provider))
+        logger.debug(f"Oauth2 provider: {provider}.")
         if provider == "auth0":
             res = self.appbuilder.sm.oauth_remotes[provider].get(
                 f"https://{AUTH0_DOMAIN}/userinfo"
@@ -253,6 +250,7 @@ class CustomSecurityManager(SupersetSecurityManager):
 
 
 # https://superset.apache.org/user-docs/6.0.0/configuration/configuring-superset/#mapping-oauth-groups-to-superset-roles
+# https://github.com/ConservationMetrics/gc-deploy/tree/main/auth0#role-setup
 AUTH_ROLES_SYNC_AT_LOGIN = True
 AUTH_ROLES_MAPPING = {
     "Admin": ["Admin"],
@@ -328,7 +326,7 @@ HTML_SANITIZATION_SCHEMA_EXTENSIONS = {
 #
 try:
     import superset_config_docker
-    from superset_config_docker import *  # noqa
+    from superset_config_docker import *
 
     logger.info(
         f"Loaded your Docker configuration at [{superset_config_docker.__file__}]"
