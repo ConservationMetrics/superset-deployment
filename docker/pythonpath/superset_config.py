@@ -235,8 +235,9 @@ class CustomSecurityManager(SupersetSecurityManager):
             return {
                 "username": me["email"],
                 "email": me["email"],
-                "first_name": me["given_name"],
-                "last_name": me["family_name"],
+                "first_name": me.get("given_name")
+                or "",  # Auth0 will not return first (or last) name if users signed up with email and password instead of social login
+                "last_name": me.get("family_name") or "",
                 "role_keys": me.get("urn.gc.roles", []),
             }
 
