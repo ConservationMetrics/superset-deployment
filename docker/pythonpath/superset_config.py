@@ -232,13 +232,13 @@ class CustomSecurityManager(SupersetSecurityManager):
             # Uncomment the following line to inspect the returned user data
             # logger.debug(" user_data: %s", me)
 
+            # Auth0 omits given_name and family_name when a user signed up with
+            # email and password. Fall back to the email so the UI is not blank.
             return {
                 "username": me["email"],
                 "email": me["email"],
-                "first_name": me.get(
-                    "given_name", ""
-                ),  # Auth0 will not return first (or last) name if users signed up with email and password instead of social login
-                "last_name": me.get("family_name", ""),
+                "first_name": me.get("given_name", me["email"]),
+                "last_name": me.get("family_name", me["email"]),
                 "role_keys": me.get("urn.gc.roles", []),
             }
 
